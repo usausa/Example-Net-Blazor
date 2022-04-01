@@ -1,0 +1,43 @@
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">AuthenticationExample</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="oi oi-home" aria-hidden="true"></span> Home
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="admin">
+                <span class="oi oi-person" aria-hidden="true"></span> Admin
+            </NavLink>
+            <NavLink class="nav-link" href="user">
+                <span class="oi oi-people" aria-hidden="true"></span> User
+            </NavLink>
+            <NavLink class="nav-link" href="dummy">
+                <span class="oi oi-warning" aria-hidden="true"></span> 404
+            </NavLink>
+            <NavLink class="nav-link" href="override">
+                <span class="oi oi-tablet" aria-hidden="true"></span> Override
+            </NavLink>
+        </div>
+    </nav>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

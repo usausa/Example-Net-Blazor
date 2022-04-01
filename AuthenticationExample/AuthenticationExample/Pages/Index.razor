@@ -1,0 +1,50 @@
+@page "/"
+@inject CustomAuthenticationStateProvider AuthenticationStateProvider
+
+<PageTitle>Index</PageTitle>
+
+<AuthorizeView>
+    <Authorized>
+        <div>Authorized @authenticationState!.User.Identity!.Name</div>
+    </Authorized>
+    <NotAuthorized>
+        <div>NotAuthorized</div>
+    </NotAuthorized>
+</AuthorizeView>
+<AuthorizeView Roles="Administrator">
+    <div>Administrator</div>
+</AuthorizeView>
+
+<div>
+    <button @onclick="OnAdministratorClick">Administrator Login</button>
+    <button @onclick="OnLoginClick">Login</button>
+    <button @onclick="OnLogoutClick">Logout</button>
+</div>
+
+@code {
+    private AuthenticationState? authenticationState;
+
+    [CascadingParameter]
+    [AllowNull]
+    private Task<AuthenticationState> AuthenticationState { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        authenticationState = await AuthenticationState;
+    }
+
+    private async Task OnAdministratorClick()
+    {
+        await AuthenticationStateProvider.LoginAsync("admin", "admin");
+    }
+
+    private async Task OnLoginClick()
+    {
+        await AuthenticationStateProvider.LoginAsync("user", "user");
+    }
+
+    private async Task OnLogoutClick()
+    {
+        await AuthenticationStateProvider.LogoutAsync();
+    }
+}

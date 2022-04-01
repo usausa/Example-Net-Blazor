@@ -1,1 +1,1 @@
-# Example-Net-Blazor
+# Example
