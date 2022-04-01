@@ -53,12 +53,12 @@ public sealed class CustomAuthenticationStateProvider : AuthenticationStateProvi
         return Task.FromResult(new AuthenticationState(Anonymous));
     }
 
-    public async Task LoginAsync(string username, string password)
+    public async Task<bool> LoginAsync(string username, string password)
     {
         // TODO
         if (username != password)
         {
-            return;
+            return false;
         }
 
         var claims = new List<Claim>
@@ -75,6 +75,8 @@ public sealed class CustomAuthenticationStateProvider : AuthenticationStateProvi
 
         cachedPrincipal = new ClaimsPrincipal(identify);
         NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(cachedPrincipal)));
+
+        return true;
     }
 
     public async Task LogoutAsync()

@@ -1,0 +1,48 @@
+@page "/login"
+@layout SimpleLayout
+@inject NavigationManager NavigationManager
+@inject CustomAuthenticationStateProvider AuthenticationStateProvider
+
+<PageTitle>Login</PageTitle>
+
+<EditForm Model="@form" OnValidSubmit="Submit">
+    <DataAnnotationsValidator />
+    <CustomValidator @ref="customValidator" />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label class="form-label">Username</label>
+        <InputText @bind-Value="form.Username" class="form-control"/>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Password</label>
+        <InputText @bind-Value="form.Password" type="password" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Login</button>
+</EditForm>
+
+@code {
+    private readonly LoginForm form = new();
+
+    [AllowNull]
+    private CustomValidator customValidator;
+
+    private async Task Submit()
+    {
+        customValidator.ClearErrors();
+
+        if (await AuthenticationStateProvider.LoginAsync(form.Username, form.Password))
+        {
+            NavigationManager.NavigateTo("/");
+        }
+        else
+        {
+            var errors = new Dictionary<string, List<string>>
+            {
+                { nameof(form.Username), new() { "Login failed." } }
+            };
+            customValidator.DisplayErrors(errors);
+        }
+    }
+}

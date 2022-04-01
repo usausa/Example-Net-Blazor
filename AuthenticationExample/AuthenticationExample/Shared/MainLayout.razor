@@ -1,4 +1,6 @@
 @inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
+@inject CustomAuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>AuthenticationExample</PageTitle>
 
@@ -9,6 +11,15 @@
 
     <main>
         <div class="top-row px-4">
+            <AuthorizeView>
+                <NotAuthorized>
+                    <a href="" @onclick="OnLoginClick">Login</a>
+                </NotAuthorized>
+                <Authorized>
+                    <span>@authenticationState!.User.Identity!.Name</span>
+                    <a href="" @onclick="OnLogoutClick">Logout</a>
+                </Authorized>
+            </AuthorizeView>
         </div>
 
         <article class="content px-4">
@@ -16,3 +27,26 @@
         </article>
     </main>
 </div>
+
+@code {
+    private AuthenticationState? authenticationState;
+
+    [CascadingParameter]
+    [AllowNull]
+    private Task<AuthenticationState> AuthenticationState { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        authenticationState = await AuthenticationState;
+    }
+
+    private void OnLoginClick()
+    {
+        NavigationManager.NavigateTo("/login");
+    }
+
+    private async Task OnLogoutClick()
+    {
+        await AuthenticationStateProvider.LogoutAsync();
+    }
+}
