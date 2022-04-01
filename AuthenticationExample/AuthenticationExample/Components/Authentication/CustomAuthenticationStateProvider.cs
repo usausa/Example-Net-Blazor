@@ -93,7 +93,9 @@ public sealed class CustomAuthenticationStateProvider : AuthenticationStateProvi
         {
             Subject = identity,
             Expires = DateTime.UtcNow.AddDays(1),
-            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secretKey), SecurityAlgorithms.HmacSha256Signature)
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secretKey), SecurityAlgorithms.HmacSha256Signature),
+            Audience = setting.Issuer,
+            Issuer = setting.Issuer
         };
         var tokenHandler = new JwtSecurityTokenHandler();
         var token = tokenHandler.CreateToken(tokenDescriptor);
@@ -115,8 +117,8 @@ public sealed class CustomAuthenticationStateProvider : AuthenticationStateProvi
             var parameter = new TokenValidationParameters
             {
                 IssuerSigningKey = new SymmetricSecurityKey(secretKey),
-                ValidateAudience = false,
-                ValidateIssuer = false
+                ValidAudience = setting.Issuer,
+                ValidIssuer = setting.Issuer
             };
             var tokenHandler = new JwtSecurityTokenHandler();
             var principal = tokenHandler.ValidateToken(value, parameter, out var validatedToken);

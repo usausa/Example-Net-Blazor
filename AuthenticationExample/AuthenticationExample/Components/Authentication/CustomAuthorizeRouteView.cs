@@ -99,6 +99,7 @@ public sealed class CustomAuthorizeRouteView : RouteView
         RenderContentInDefaultLayout(builder, content);
     }
 
+#pragma warning disable CA1812
     private sealed class AuthorizeRouteViewCore : AuthorizeViewCore
     {
         [Parameter]
@@ -107,4 +108,5 @@ public sealed class CustomAuthorizeRouteView : RouteView
         protected override IAuthorizeData[]? GetAuthorizeData()
             => AttributeAuthorizeDataCache.GetAuthorizeDataForType(RouteData.PageType);
     }
+#pragma warning restore CA1812
 }
