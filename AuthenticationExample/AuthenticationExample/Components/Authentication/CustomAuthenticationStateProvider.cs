@@ -92,7 +92,7 @@ public sealed class CustomAuthenticationStateProvider : AuthenticationStateProvi
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = identity,
-            Expires = DateTime.UtcNow.AddDays(1),
+            Expires = DateTime.UtcNow.AddDays(setting.Expire),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secretKey), SecurityAlgorithms.HmacSha256Signature),
             Audience = setting.Issuer,
             Issuer = setting.Issuer
