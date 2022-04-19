@@ -32,8 +32,7 @@
     private AuthenticationState? authenticationState;
 
     [CascadingParameter]
-    [AllowNull]
-    private Task<AuthenticationState> AuthenticationState { get; set; }
+    private Task<AuthenticationState> AuthenticationState { get; set; } = default!;
 
     protected override async Task OnParametersSetAsync()
     {

@@ -1,14 +1,10 @@
 namespace AuthenticationExample.Components.Authentication;
 
-using System.Diagnostics.CodeAnalysis;
-
 public class CustomAuthenticationSetting
 {
-    [AllowNull]
-    public string SecretKey { get; set; }
+    public string SecretKey { get; set; } = default!;
 
-    [AllowNull]
-    public string Issuer { get; set; }
+    public string Issuer { get; set; } = default!;
 
     public int Expire { get; set; }
 }

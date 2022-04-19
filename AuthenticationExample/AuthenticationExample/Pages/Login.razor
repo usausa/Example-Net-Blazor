@@ -33,8 +33,7 @@
 @code {
     private readonly LoginForm form = new();
 
-    [AllowNull]
-    private CustomValidator customValidator;
+    private CustomValidator customValidator = default!;
 
     private async Task Submit()
     {

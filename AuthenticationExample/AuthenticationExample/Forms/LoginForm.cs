@@ -3,10 +3,8 @@ namespace AuthenticationExample.Forms;
 public class LoginForm
 {
     [Required]
-    [AllowNull]
-    public string Username { get; set; }
+    public string Username { get; set; } = default!;
 
     [Required]
-    [AllowNull]
-    public string Password { get; set; }
+    public string Password { get; set; } = default!;
 }

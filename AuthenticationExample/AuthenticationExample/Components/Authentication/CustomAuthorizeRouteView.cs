@@ -40,8 +40,7 @@ public sealed class CustomAuthorizeRouteView : RouteView
     public object? Resource { get; set; }
 
     [Parameter]
-    [AllowNull]
-    public Type NotAuthorizedLayout { get; set; }
+    public Type NotAuthorizedLayout { get; set; } = default!;
 
     [CascadingParameter]
     private Task<AuthenticationState>? ExistingCascadedAuthenticationState { get; set; }
