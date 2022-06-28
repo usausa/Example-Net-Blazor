@@ -1,0 +1,23 @@
+@page "/page2"
+
+<PageTitle>Page2</PageTitle>
+
+<MudText Typo="Typo.h3" GutterBottom="true">Page2</MudText>
+
+<Section>
+    <Menu>
+        <MudMenu Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Dense="true" AnchorOrigin="Origin.BottomRight">
+            <MudMenuItem OnClick="(() => OnClick(1))">Menu Item 2-1</MudMenuItem>
+            <MudMenuItem OnClick="(() => OnClick(2))">Menu Item 2-2</MudMenuItem>
+            <MudMenuItem OnClick="(() => OnClick(3))">Menu Item 2-3</MudMenuItem>
+        </MudMenu>
+    </Menu>
+</Section>
+
+@code
+{
+    private static void OnClick(int item)
+    {
+        System.Diagnostics.Debug.WriteLine($"Clicked: Page2-{item}");
+    }
+}

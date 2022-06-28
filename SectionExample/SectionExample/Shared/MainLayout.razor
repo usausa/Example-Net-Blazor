@@ -1,19 +1,54 @@
 ﻿@inherits LayoutComponentBase
+@implements ISectionCallback
 
-<PageTitle>SectionExample</PageTitle>
+<MudThemeProvider Theme="@theme" />
+<MudDialogProvider />
+<MudSnackbarProvider />
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+<CascadingValue Value="this">
+    <MudLayout>
+        <MudAppBar Dense="true">
+            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@(_ => DrawerToggle())" />
+            <MudSpacer />
+            @menu
+        </MudAppBar>
+        <MudDrawer @bind-Open="drawerOpen" Elevation="1">
+            <MudDrawerHeader Dense="true">
+                <MudText Typo="Typo.h6">Section</MudText>
+            </MudDrawerHeader>
+            <NavMenu />
+        </MudDrawer>
+        <MudMainContent>
+            <MudContainer MaxWidth="MaxWidth.Large" Class="my-2 pt-2">
+                @Body
+            </MudContainer>
+        </MudMainContent>
+    </MudLayout>
+</CascadingValue>
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
-        </div>
+@code {
+    private RenderFragment? menu;
 
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
+    private readonly MudTheme theme = new()
+    {
+        Palette = new Palette
+        {
+            Primary = Colors.Blue.Default,
+            Secondary = Colors.Green.Accent4,
+            AppbarBackground = Colors.Blue.Darken4
+        }
+    };
+
+    private bool drawerOpen = true;
+
+    private void DrawerToggle()
+    {
+        drawerOpen = !drawerOpen;
+    }
+
+    public void SetMenu(RenderFragment? value)
+    {
+        menu = value;
+        StateHasChanged();
+    }
+}
