@@ -45,6 +45,8 @@
 
     protected override async Task OnParametersSetAsync()
     {
+        System.Diagnostics.Debug.WriteLine("**** OnParametersSetAsync MainLayout ****");
+
         authenticationState = await AuthenticationState;
     }
 

@@ -11,3 +11,10 @@
         </MudContainer>
     </MudMainContent>
 </MudLayout>
+
+@code {
+    protected override void OnParametersSet()
+    {
+        System.Diagnostics.Debug.WriteLine("**** OnParametersSetAsync ErrorLayout ****");
+    }
+}
