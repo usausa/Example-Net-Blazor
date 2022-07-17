@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using MudBlazor.Services;
 
 using ErrorHandleExample.Components.Authentication;
+using ErrorHandleExample.Data;
 
 #pragma warning disable CA1812
 
@@ -22,6 +23,9 @@ builder.Services.AddMudServices();
 builder.Services.Configure<CookieAuthenticationSetting>(builder.Configuration.GetSection("Authentication"));
 builder.Services.AddScoped<CookieAuthenticationStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(p => p.GetRequiredService<CookieAuthenticationStateProvider>());
+
+// Service
+builder.Services.AddSingleton<DataService>();
 
 //--------------------------------------------------------------------------------
 // Configure the HTTP request pipeline

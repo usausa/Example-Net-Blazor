@@ -19,7 +19,21 @@
                 </ChildContent>
                 <ErrorContent>
                     <LayoutView Layout="@typeof(ErrorLayout)">
-                        <Error500 Exception="@context" RecoverRequest="() => errorBoundary?.Recover()"/>
+                        @if (context is AuthorizeException authorizeException)
+                        {
+                            if (authorizeException.StatusCode == 404)
+                            {
+                                <Error404 />
+                            }
+                            else if (authorizeException.StatusCode == 403)
+                            {
+                                <Error403 />
+                            }
+                        }
+                        else
+                        {
+                            <Error500 Exception="@context" RecoverRequest="() => errorBoundary?.Recover()"/>
+                        }
                     </LayoutView>
                 </ErrorContent>
             </ExtendedErrorBoundary>

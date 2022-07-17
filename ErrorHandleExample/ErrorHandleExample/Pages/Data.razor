@@ -1,0 +1,36 @@
+@page "/data/{id:int}"
+@attribute [Authorize]
+@inject DataService DataService
+
+<PageTitle>Data</PageTitle>
+
+<MudText Typo="Typo.body1">@entity?.Name</MudText>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthenticationState { get; set; } = default!;
+
+
+    private DataEntity? entity;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        System.Diagnostics.Debug.WriteLine("**** OnParametersSet MainLayout ****");
+
+        var authenticationState = await AuthenticationState;
+
+        entity = DataService.QueryData(Id);
+        if (entity is null)
+        {
+            throw new NotFoundException();
+        }
+        if (entity.IsAdminOnly && !authenticationState.User.IsInRole("Administrator"))
+        {
+            throw new ForbiddenException();
+        }
+    }
+}
+
