@@ -1,0 +1,31 @@
+<PageTitle>Error</PageTitle>
+
+<PageTitle>Server Error</PageTitle>
+
+<MudCard Class="border-b-8 border-solid mud-border-error">
+    <MudCardContent>
+        <MudGrid Spacing="1">
+            <MudItem xs="12" Class="d-flex justify-center pa-0">
+                <MudText Typo="Typo.h1" Color="Color.Error">500</MudText>
+            </MudItem>
+            <MudItem xs="12" Class="d-flex justify-center pa-0">
+                <MudIcon Icon="@Icons.Material.Filled.Cancel" Color="Color.Error" Size="Size.Large" Class="align-self-center"/>
+                <MudText Typo="Typo.h4">Server Error.</MudText>
+            </MudItem>
+            <MudItem xs="12" Class="d-flex justify-center pa-0">
+                <MudText Typo="Typo.body2"><pre>@Exception?.ToString()</pre></MudText>
+            </MudItem>
+            <MudItem xs="12" Class="d-flex justify-center pa-0">
+                <MudButton Color="Color.Primary" OnClick="() => RecoverRequest.InvokeAsync()">Recover</MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudCardContent>
+</MudCard>
+
+@code {
+    [Parameter]
+    public Exception? Exception { get; set; }
+
+    [Parameter]
+    public EventCallback RecoverRequest { get; set; }
+}

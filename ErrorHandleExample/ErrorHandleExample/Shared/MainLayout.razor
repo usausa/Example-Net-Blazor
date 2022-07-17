@@ -1,0 +1,66 @@
+@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
+@inject CookieAuthenticationStateProvider AuthenticationStateProvider
+
+<MudThemeProvider Theme="@Styles.Theme" />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<CascadingValue Value="this">
+    <MudLayout>
+        <MudAppBar Dense="true">
+            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@(_ => DrawerToggle())" />
+            <MudSpacer />
+            <AuthorizeView>
+                <NotAuthorized>
+                    <MudIconButton Icon="@Icons.Material.Filled.Login" Color="Color.Inherit" OnClick="OnLoginClick" />
+                </NotAuthorized>
+                <Authorized>
+                    <MudText>@authenticationState!.User.Identity!.Name</MudText>
+                    <MudIconButton Icon="@Icons.Material.Filled.Logout" Color="Color.Inherit" OnClick="OnLogoutClick"/>
+                </Authorized>
+            </AuthorizeView>
+        </MudAppBar>
+        <MudDrawer @bind-Open="drawerOpen" Elevation="1">
+            <MudDrawerHeader Dense="true">
+                <MudText Typo="Typo.h6">Typography</MudText>
+            </MudDrawerHeader>
+            <NavMenu />
+        </MudDrawer>
+        <MudMainContent>
+            <MudContainer MaxWidth="MaxWidth.Large" Class="pt-4">
+                @Body
+            </MudContainer>
+        </MudMainContent>
+    </MudLayout>
+</CascadingValue>
+
+@code {
+    private bool drawerOpen = true;
+
+    private AuthenticationState? authenticationState;
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthenticationState { get; set; } = default!;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        authenticationState = await AuthenticationState;
+    }
+
+    private void DrawerToggle()
+    {
+        drawerOpen = !drawerOpen;
+    }
+
+    private void OnLoginClick()
+    {
+        NavigationManager.NavigateTo("/login");
+    }
+
+    private async Task OnLogoutClick()
+    {
+        await AuthenticationStateProvider.LogoutAsync();
+        NavigationManager.NavigateTo("/");
+    }
+}

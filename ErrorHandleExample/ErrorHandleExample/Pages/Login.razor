@@ -1,0 +1,80 @@
+@page "/login"
+@layout SimpleLayout
+@attribute [AllowAnonymous]
+@inject NavigationManager NavigationManager
+@inject CookieAuthenticationStateProvider AuthenticationStateProvider
+
+<PageTitle>Login</PageTitle>
+
+<MudPaper Class="pa-4" Style="width: 360px">
+    <EditForm Model="@form" OnValidSubmit="Submit">
+        <DataAnnotationsValidator />
+        <CustomValidator @ref="customValidator" />
+
+        <MudGrid Spacing="1">
+            <MudItem xs="12" Class="d-flex justify-center">
+                <MudText Typo="Typo.h4">Login</MudText>
+            </MudItem>
+            <MudItem xs="12" Class="d-flex justify-center">
+                <MudTextField
+                    Label="Id" Variant="Variant.Outlined" Margin="Margin.Dense"
+                    @bind-Value="form.Id" For="@(() => form.Id)" />
+            </MudItem>
+            <MudItem xs="12" Class="d-flex justify-center">
+                <MudTextField
+                    Label="Password" Variant="Variant.Outlined" Margin="Margin.Dense"
+                    @bind-Value="form.Password" For="@(() => form.Password)"
+                    InputType="@PasswordInputType(passwordVisible)" Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon(passwordVisible)" OnAdornmentClick="TogglePasswordVisibility" />
+            </MudItem>
+            <MudItem xs="12" Class="d-flex justify-center">
+                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" Style="width: 100%">Login</MudButton>
+            </MudItem>
+        </MudGrid>
+    </EditForm>
+</MudPaper>
+
+@code {
+    public class LoginForm
+    {
+        [Required]
+        public string Id { get; set; } = default!;
+
+        [Required]
+        public string Password { get; set; } = default!;
+    }
+
+    private readonly LoginForm form = new();
+
+    private CustomValidator customValidator = default!;
+
+    private bool passwordVisible;
+
+    [Parameter]
+    public bool Reload { get; set; }
+
+    private async Task Submit()
+    {
+        customValidator.ClearErrors();
+
+        if (await AuthenticationStateProvider.LoginAsync(form.Id, form.Password))
+        {
+            if (!Reload)
+            {
+                NavigationManager.NavigateTo("/");
+            }
+        }
+        else
+        {
+            var errors = new Dictionary<string, List<string>>
+            {
+                { nameof(form.Id), new() { "Login failed." } }
+            };
+            customValidator.DisplayErrors(errors);
+        }
+    }
+
+    private void TogglePasswordVisibility()
+    {
+        passwordVisible = !passwordVisible;
+    }
+}

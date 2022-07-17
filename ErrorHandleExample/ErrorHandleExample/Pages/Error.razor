@@ -1,0 +1,14 @@
+@page "/error"
+
+<PageTitle>Error</PageTitle>
+
+<MudButton OnClick="OnErrorClick" Variant="Variant.Filled" Color="Color.Error">Error</MudButton>
+
+@code {
+    // ReSharper disable once MemberCanBeMadeStatic.Local
+    private void OnErrorClick()
+    {
+        throw new Exception("test");
+    }
+}
+
