@@ -41,21 +41,7 @@
             <MudSnackbarProvider />
             <MudMainContent>
                 <MudContainer MaxWidth="MaxWidth.Large" Class="d-flex justify-center pt-16">
-                    @if (context is AuthorizeException authorizeException)
-                    {
-                        if (authorizeException.StatusCode == 404)
-                        {
-                            <Error404 />
-                        }
-                        else if (authorizeException.StatusCode == 403)
-                        {
-                            <Error403 />
-                        }
-                    }
-                    else
-                    {
-                        <Error500 Exception="@context" RecoverRequest="() => errorBoundary?.Recover()"/>
-                    }
+                    <ErrorDispatcher Exception="context" RecoverRequest="() => errorBoundary?.Recover()" />
                 </MudContainer>
             </MudMainContent>
         </ErrorContent>

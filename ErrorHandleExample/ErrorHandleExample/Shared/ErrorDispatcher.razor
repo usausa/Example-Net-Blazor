@@ -1,0 +1,23 @@
+@if (Exception is AuthorizeException authorizeException)
+{
+    if (authorizeException.StatusCode == 404)
+    {
+        <Error404 />
+    }
+    else if (authorizeException.StatusCode == 403)
+    {
+        <Error403 />
+    }
+}
+else
+{
+    <Error500 Exception="Exception" RecoverRequest="RecoverRequest"/>
+}
+
+@code {
+    [Parameter]
+    public Exception? Exception { get; set; }
+
+    [Parameter]
+    public EventCallback RecoverRequest { get; set; }
+}
