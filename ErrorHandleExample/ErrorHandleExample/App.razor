@@ -1,42 +1,19 @@
 <CascadingAuthenticationState>
     <Router AppAssembly="@typeof(App).Assembly">
         <Found Context="routeData">
-            <ExtendedErrorBoundary @ref="errorBoundary">
-                <ChildContent>
-                    <ExtendedAuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" NotAuthorizedLayout="@typeof(ErrorLayout)">
-                        <NotAuthorized>
-                            @if (context.User.Identity?.IsAuthenticated != true)
-                            {
-                                <ErrorHandleExample.Pages.Login Reload="true" />
-                            }
-                            else
-                            {
-                                <Error403 />
-                            }
-                        </NotAuthorized>
-                    </ExtendedAuthorizeRouteView>
-                    <FocusOnNavigate RouteData="@routeData" Selector="h1"/>
-                </ChildContent>
-                <ErrorContent>
-                    <LayoutView Layout="@typeof(ErrorLayout)">
-                        @if (context is AuthorizeException authorizeException)
-                        {
-                            if (authorizeException.StatusCode == 404)
-                            {
-                                <Error404 />
-                            }
-                            else if (authorizeException.StatusCode == 403)
-                            {
-                                <Error403 />
-                            }
-                        }
-                        else
-                        {
-                            <Error500 Exception="@context" RecoverRequest="() => errorBoundary?.Recover()"/>
-                        }
-                    </LayoutView>
-                </ErrorContent>
-            </ExtendedErrorBoundary>
+            <ExtendedAuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" NotAuthorizedLayout="@typeof(SimpleLayout)">
+                <NotAuthorized>
+                    @if (context.User.Identity?.IsAuthenticated != true)
+                    {
+                        <ErrorHandleExample.Pages.Login Reload="true" />
+                    }
+                    else
+                    {
+                        <Error403 />
+                    }
+                </NotAuthorized>
+            </ExtendedAuthorizeRouteView>
+            <FocusOnNavigate RouteData="@routeData" Selector="h1"/>
         </Found>
         <NotFound>
             <LayoutView Layout="@typeof(ErrorLayout)">
@@ -45,12 +22,3 @@
         </NotFound>
     </Router>
 </CascadingAuthenticationState>
-
-@code {
-    private ErrorBoundary? errorBoundary;
-
-    protected override void OnParametersSet()
-    {
-        System.Diagnostics.Debug.WriteLine("**** OnParametersSet App ****");
-    }
-}

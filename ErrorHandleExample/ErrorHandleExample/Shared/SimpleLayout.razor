@@ -1,20 +1,51 @@
 @inherits LayoutComponentBase
 
-<MudThemeProvider Theme="@Styles.NoMenuTheme" />
-<MudDialogProvider />
-<MudSnackbarProvider />
-
-<MudLayout>
-    <MudMainContent>
-        <MudContainer MaxWidth="MaxWidth.Large" Class="d-flex justify-center pt-16">
-            @Body
-        </MudContainer>
-    </MudMainContent>
-</MudLayout>
+<ExtendedErrorBoundary @ref="errorBoundary">
+    <ChildContent>
+        <MudThemeProvider Theme="@Styles.NoMenuTheme" />
+        <MudDialogProvider />
+        <MudSnackbarProvider />
+        <MudLayout>
+            <MudMainContent>
+                <MudContainer MaxWidth="MaxWidth.Large" Class="d-flex justify-center pt-16">
+                    @Body
+                </MudContainer>
+            </MudMainContent>
+        </MudLayout>
+    </ChildContent>
+    <ErrorContent>
+        <MudThemeProvider Theme="@Styles.NoMenuTheme" />
+        <MudDialogProvider />
+        <MudSnackbarProvider />
+        <MudLayout>
+            <MudMainContent>
+                <MudContainer MaxWidth="MaxWidth.Large" Class="d-flex justify-center pt-16">
+                    @if (context is AuthorizeException authorizeException)
+                    {
+                        if (authorizeException.StatusCode == 404)
+                        {
+                            <Error404 />
+                        }
+                        else if (authorizeException.StatusCode == 403)
+                        {
+                            <Error403 />
+                        }
+                    }
+                    else
+                    {
+                        <Error500 Exception="@context" RecoverRequest="() => errorBoundary?.Recover()"/>
+                    }
+                </MudContainer>
+            </MudMainContent>
+        </MudLayout>
+    </ErrorContent>
+</ExtendedErrorBoundary>
 
 @code {
+    private ErrorBoundary? errorBoundary;
+
     protected override void OnParametersSet()
     {
-        System.Diagnostics.Debug.WriteLine("**** OnParametersSet SimpleLayout ****");
+        errorBoundary?.Recover();
     }
 }

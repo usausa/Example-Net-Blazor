@@ -2,40 +2,69 @@
 @inject NavigationManager NavigationManager
 @inject CookieAuthenticationStateProvider AuthenticationStateProvider
 
-<MudThemeProvider Theme="@Styles.Theme" />
-<MudDialogProvider />
-<MudSnackbarProvider />
-
 <CascadingValue Value="this">
-    <MudLayout>
-        <MudAppBar Dense="true">
-            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@(_ => DrawerToggle())" />
-            <MudSpacer />
-            <AuthorizeView>
-                <NotAuthorized>
-                    <MudIconButton Icon="@Icons.Material.Filled.Login" Color="Color.Inherit" OnClick="OnLoginClick" />
-                </NotAuthorized>
-                <Authorized>
-                    <MudText>@authenticationState!.User.Identity!.Name</MudText>
-                    <MudIconButton Icon="@Icons.Material.Filled.Logout" Color="Color.Inherit" OnClick="OnLogoutClick"/>
-                </Authorized>
-            </AuthorizeView>
-        </MudAppBar>
-        <MudDrawer @bind-Open="drawerOpen" Elevation="1">
-            <MudDrawerHeader Dense="true">
-                <MudText Typo="Typo.h6">Typography</MudText>
-            </MudDrawerHeader>
-            <NavMenu />
-        </MudDrawer>
-        <MudMainContent>
-            <MudContainer MaxWidth="MaxWidth.Large" Class="pt-4">
-                @Body
-            </MudContainer>
-        </MudMainContent>
-    </MudLayout>
+    <ExtendedErrorBoundary @ref="errorBoundary">
+        <ChildContent>
+            <MudThemeProvider Theme="@Styles.Theme" />
+            <MudDialogProvider />
+            <MudSnackbarProvider />
+            <MudLayout>
+                <MudAppBar Dense="true">
+                    <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@(_ => DrawerToggle())" />
+                    <MudSpacer />
+                    <AuthorizeView>
+                        <NotAuthorized>
+                            <MudIconButton Icon="@Icons.Material.Filled.Login" Color="Color.Inherit" OnClick="OnLoginClick" />
+                        </NotAuthorized>
+                        <Authorized>
+                            <MudText>@authenticationState!.User.Identity!.Name</MudText>
+                            <MudIconButton Icon="@Icons.Material.Filled.Logout" Color="Color.Inherit" OnClick="OnLogoutClick"/>
+                        </Authorized>
+                    </AuthorizeView>
+                </MudAppBar>
+                <MudDrawer @bind-Open="drawerOpen" Elevation="1">
+                    <MudDrawerHeader Dense="true">
+                        <MudText Typo="Typo.h6">Typography</MudText>
+                    </MudDrawerHeader>
+                    <NavMenu />
+                </MudDrawer>
+                <MudMainContent>
+                    <MudContainer MaxWidth="MaxWidth.Large" Class="pt-4">
+                        @Body
+                    </MudContainer>
+                </MudMainContent>
+            </MudLayout>
+        </ChildContent>
+        <ErrorContent>
+            <MudThemeProvider Theme="@Styles.NoMenuTheme" />
+            <MudDialogProvider />
+            <MudSnackbarProvider />
+            <MudMainContent>
+                <MudContainer MaxWidth="MaxWidth.Large" Class="d-flex justify-center pt-16">
+                    @if (context is AuthorizeException authorizeException)
+                    {
+                        if (authorizeException.StatusCode == 404)
+                        {
+                            <Error404 />
+                        }
+                        else if (authorizeException.StatusCode == 403)
+                        {
+                            <Error403 />
+                        }
+                    }
+                    else
+                    {
+                        <Error500 Exception="@context" RecoverRequest="() => errorBoundary?.Recover()"/>
+                    }
+                </MudContainer>
+            </MudMainContent>
+        </ErrorContent>
+    </ExtendedErrorBoundary>
 </CascadingValue>
 
 @code {
+    private ErrorBoundary? errorBoundary;
+
     private bool drawerOpen = true;
 
     private AuthenticationState? authenticationState;
@@ -45,7 +74,7 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        System.Diagnostics.Debug.WriteLine("**** OnParametersSet MainLayout ****");
+        errorBoundary?.Recover();
 
         authenticationState = await AuthenticationState;
     }
