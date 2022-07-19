@@ -1,6 +1,6 @@
 @inherits LayoutComponentBase
 
-<ExtendedErrorBoundary @ref="errorBoundary">
+<ErrorBoundary @ref="errorBoundary">
     <ChildContent>
         <MudThemeProvider Theme="@Styles.NoMenuTheme" />
         <MudDialogProvider />
@@ -25,7 +25,7 @@
             </MudMainContent>
         </MudLayout>
     </ErrorContent>
-</ExtendedErrorBoundary>
+</ErrorBoundary>
 
 @code {
     private ErrorBoundary? errorBoundary;

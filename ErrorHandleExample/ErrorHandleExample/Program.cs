@@ -1,9 +1,11 @@
-using Microsoft.AspNetCore.Components.Authorization;
-
-using MudBlazor.Services;
-
+using ErrorHandleExample.Components;
 using ErrorHandleExample.Components.Authentication;
 using ErrorHandleExample.Data;
+
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Web;
+
+using MudBlazor.Services;
 
 #pragma warning disable CA1812
 
@@ -18,6 +20,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddMudServices();
+builder.Services.AddSingleton<IErrorBoundaryLogger, ErrorBoundaryLogger>();
 
 // Add Authentication component.
 builder.Services.Configure<CookieAuthenticationSetting>(builder.Configuration.GetSection("Authentication"));

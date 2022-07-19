@@ -3,7 +3,7 @@
 @inject CookieAuthenticationStateProvider AuthenticationStateProvider
 
 <CascadingValue Value="this">
-    <ExtendedErrorBoundary @ref="errorBoundary">
+    <ErrorBoundary @ref="errorBoundary">
         <ChildContent>
             <MudThemeProvider Theme="@Styles.Theme" />
             <MudDialogProvider />
@@ -45,7 +45,7 @@
                 </MudContainer>
             </MudMainContent>
         </ErrorContent>
-    </ExtendedErrorBoundary>
+    </ErrorBoundary>
 </CascadingValue>
 
 @code {
