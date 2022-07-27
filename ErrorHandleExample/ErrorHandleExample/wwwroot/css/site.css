@@ -5,3 +5,7 @@ h1:focus {
 .text-center {
     text-align: center;
 }
+
+.exception-detail {
+    white-space: pre-wrap;
+}

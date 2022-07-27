@@ -11,7 +11,7 @@
                 <MudText Typo="Typo.h4">Server Error.</MudText>
             </MudItem>
             <MudItem xs="12" Class="d-flex justify-center pa-0">
-                <MudText Typo="Typo.body2"><pre>@Exception?.ToString()</pre></MudText>
+                <MudText Typo="Typo.body2"><pre class="exception-detail">@Exception?.ToString()</pre></MudText>
             </MudItem>
             <MudItem xs="12" Class="d-flex justify-center pa-0">
                 <MudButton Color="Color.Primary" OnClick="() => RecoverRequest.InvokeAsync()">Recover</MudButton>
