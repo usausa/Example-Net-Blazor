@@ -4,9 +4,31 @@
 
 <LineChart Width="840" Height="340" Source="source" BuildOption="BuildOption" />
 
-<hr />
-<button @onclick="OnClick1">Button1</button>
-<button @onclick="OnClick2">Button2</button>
+<h6>Start</h6>
+<div>
+    <button @onclick="() => OnClickAddStart(TimeSpan.FromHours(-1))">-1h</button>
+    <button @onclick="() => OnClickAddStart(TimeSpan.FromMinutes(-5))">-5m</button>
+    <button @onclick="() => OnClickAddStart(TimeSpan.FromMinutes(-1))">-1m</button>
+    <button @onclick="() => OnClickAddStart(TimeSpan.FromSeconds(-30))">-30s</button>
+    <button @onclick="() => OnClickAddStart(TimeSpan.FromMinutes(1))">+1m</button>
+    <button @onclick="() => OnClickAddStart(TimeSpan.FromMinutes(5))">+5m</button>
+    <button @onclick="() => OnClickAddStart(TimeSpan.FromHours(1))">+1h</button>
+    <button @onclick="() => OnClickSetStart(DateTime.Today)">Today</button>
+    <button @onclick="() => OnClickSetStart(DateTime.Now)">Now</button>
+</div>
+
+<h6>Size</h6>
+<div>
+    <button @onclick="() => OnClickAddSize(-60)">-60</button>
+    <button @onclick="() => OnClickAddSize(-5)">-5</button>
+    <button @onclick="() => OnClickAddSize(-1)">-1</button>
+    <button @onclick="() => OnClickAddSize(1)">+1</button>
+    <button @onclick="() => OnClickAddSize(5)">+5</button>
+    <button @onclick="() => OnClickAddSize(60)">+60</button>
+    <button @onclick="() => OnClickSetSize(5)">5</button>
+    <button @onclick="() => OnClickSetSize(60)">60</button>
+    <button @onclick="() => OnClickSetSize(1440)">1440</button>
+</div>
 
 @code {
 
@@ -21,28 +43,42 @@
 
     private DateTime start = DateTime.Today;
 
+    private int size = 1440;
+
     private ChartSource<Data>? source;
 
     protected override void OnInitialized()
     {
-        UpdateList1(MakeDataPattern1(DateTime.Today, 1440));
+        Update();
     }
 
-    private void OnClick1()
+    private void OnClickAddStart(TimeSpan value)
     {
-        start = start.AddMinutes(1);
-        UpdateList1(MakeDataPattern1(start, 1440));
+        start += value;
+        Update();
     }
 
-    private void OnClick2()
+    private void OnClickSetStart(DateTime value)
     {
-        start = start.AddMinutes(-1);
-        UpdateList1(MakeDataPattern1(start, 1440));
+        start = value;
+        Update();
     }
 
-    private void UpdateList1(List<Data> list)
+    private void OnClickAddSize(int value)
     {
-        source = new ChartSource<Data>(list, maxValue2: 100);
+        size = Math.Min(1440, Math.Max(0, value + size));
+        Update();
+    }
+
+    private void OnClickSetSize(int value)
+    {
+        size = value;
+        Update();
+    }
+
+    private void Update()
+    {
+        source = new ChartSource<Data>(MakeDataList(), maxValue2: 100);
         source.ValueLegends.Add("Value1");
         source.ValueLegends.Add("Value2");
         source.ValueLegends.Add("Value3");
@@ -57,13 +93,13 @@
     }
 
 #pragma warning disable CA5394
-    private static List<Data> MakeDataPattern1(DateTime end, int size)
+    private List<Data> MakeDataList()
     {
         var rand = new Random();
         return Enumerable.Range(0, size)
             .Select(x =>
             {
-                var timestamp = end.AddMinutes(-size + x);
+                var timestamp = start.AddMinutes(-size + x);
                 return new Data
                 {
                     Timestamp = timestamp,
