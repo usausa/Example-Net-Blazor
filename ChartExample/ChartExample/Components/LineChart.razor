@@ -1,0 +1,570 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="@Width" height="@Height">
+
+    <defs>
+        <clipPath id="chart">
+            <rect x="@CanvasLeft" y="@CanvasTop" width="@CanvasWidth" height="@CanvasHeight" />
+        </clipPath>
+    </defs>
+
+    <!-- Border -->
+    <g>
+        <rect x="@(CanvasLeft - CanvasBorderWidth)" y="@(CanvasTop - CanvasBorderWidth)" width="@(CanvasWidth + (CanvasBorderWidth * 2))" height="@(CanvasHeight + (CanvasBorderWidth * 2))" fill="@CanvasBorderColor" />
+        <rect x="@CanvasLeft" y="@CanvasTop" width="@CanvasWidth" height="@CanvasHeight" fill="@CanvasBackgroundColor" />
+    </g>
+
+    <!-- Legend -->
+    <g>
+        <ListItem Items="legends">
+            <ItemTemplate Context="entry">
+                <circle cx="@entry.MarkerCenterX" cy="@entry.MarkerCenterY" r="@LegendMarkerRadius" fill="@entry.MarkerColor" />
+                <text x="@entry.TextX" y="@entry.TextY" dominant-baseline="text-before-edge" style="text-anchor: start; fill: @LegendTextColor; font-size: @LegendFontSize;">@entry.Text</text>
+            </ItemTemplate>
+        </ListItem>
+    </g>
+
+    <!-- Label -->
+    <g>
+        <text x="@CanvasLeft" y="0" dominant-baseline="text-before-edge" style="text-anchor: end; fill: @LabelTextColor; font-size: @LabelFontSize;">@label1</text>
+        <text x="@(CanvasWidth + CanvasLeft)" y="0" dominant-baseline="text-before-edge" style="text-anchor: start; fill: @LabelTextColor; font-size: @LabelFontSize;">@label2</text>
+    </g>
+
+    <!-- Y Axis -->
+    <g clip-path="url(#chart)">
+        <ListItem Items="value1Axis">
+            <ItemTemplate Context="entry">
+                <Condition Value="@entry.DrawLine">
+                    <line x1="@CanvasLeft" y1="@entry.Position" x2="@(CanvasLeft + CanvasWidth)" y2="@entry.Position" stroke-width="@AxisLineWidth" stroke="@entry.LineColor" stroke-dasharray="@AxisLineDashArray" />
+                </Condition>
+            </ItemTemplate>
+        </ListItem>
+    </g>
+    <g>
+        <ListItem Items="value1Axis">
+            <ItemTemplate Context="entry">
+                <text x="@(CanvasLeft - AxisMargin)" y="@entry.Position" dominant-baseline="central" style="text-anchor: end; fill: @ValueAxisTextColor; font-size: @ValueAxisFontSize;">@entry.Text</text>
+            </ItemTemplate>
+        </ListItem>
+    </g>
+    <g>
+        <ListItem Items="value2Axis">
+            <ItemTemplate Context="entry">
+                <text x="@(CanvasLeft + CanvasWidth + AxisMargin)" y="@entry.Position" dominant-baseline="central" style="text-anchor: start; fill: @ValueAxisTextColor; font-size: @ValueAxisFontSize;">@entry.Text</text>
+            </ItemTemplate>
+        </ListItem>
+    </g>
+
+    <!-- X Axis -->
+    <g clip-path="url(#chart)">
+        <ListItem Items="timeAxis">
+            <ItemTemplate Context="entry">
+                <Condition Value="@entry.DrawLine">
+                    <line x1="@entry.Position" y1="@CanvasTop" x2="@entry.Position" y2="@(CanvasTop + CanvasHeight)" stroke-width="@AxisLineWidth" stroke="@entry.LineColor" stroke-dasharray="@AxisLineDashArray" />
+                </Condition>
+            </ItemTemplate>
+        </ListItem>
+    </g>
+    <g>
+        <ListItem Items="timeAxis">
+            <ItemTemplate Context="entry">
+                <text x="@entry.Position" y="@(CanvasTop + CanvasHeight + AxisMargin)" dominant-baseline="text-before-edge" style="text-anchor: middle; fill: @TimeAxisTextColor; font-size: @TimeAxisFontSize;">@entry.Text</text>
+            </ItemTemplate>
+        </ListItem>
+    </g>
+
+    <!-- Chart -->
+    <g clip-path="url(#chart)">
+        <ListItem Items="lines">
+            <ItemTemplate Context="line">
+                <path stroke-width="@line.Width" stroke="@line.Color" fill="none" d="@line.Data" />
+            </ItemTemplate>
+        </ListItem>
+    </g>
+
+</svg>
+@code {
+    private const int MarginX = 60;
+    private const int MarginY = 20;
+
+    private const double CanvasLeft = MarginX;
+    private const double CanvasTop = MarginY;
+
+    private const string CanvasBackgroundColor = "white";
+
+    private const double CanvasBorderWidth = 0.5;
+    private const string CanvasBorderColor = "#424242";
+
+    private const double LegendWidth = 80;
+    private const double LegendMarkerRadius = 7;
+    private const double LegendMarkerOffset = 10;
+    private const double LegendTextOffset = 20;
+
+    private const string LegendTextColor = "#212121";
+    private const string LegendFontSize = "10pt";
+
+    private const string LabelTextColor = "#212121";
+    private const string LabelFontSize = "9pt";
+
+    private const double AxisLineWidth = 0.5;
+    private const string AxisLineColor = "#757575";
+    private const string AxisLineColor2 = "#ff5252";
+    private const string AxisLineDashArray = "2 2";
+
+    private const double AxisMargin = 4;
+
+    private const string ValueAxisTextColor = "#616161";
+    private const string ValueAxisFontSize = "8pt";
+
+    private const string TimeAxisTextColor = "#616161";
+    private const string TimeAxisFontSize = "9pt";
+
+    private const double ValuePathWidth = 0.75;
+    private const double ThresholdPathWidth = 1;
+
+    private static readonly long TimeHour = TimeSpan.FromHours(1).Ticks;
+
+    private bool changed;
+
+    private IChartSource? source;
+
+    // Data
+
+    private readonly List<LegendEntry> legends = new();
+
+    private string? label1;
+    private string? label2;
+
+    private readonly List<AxisEntry> timeAxis = new();
+
+    private readonly List<AxisEntry> value1Axis = new();
+    private readonly List<AxisEntry> value2Axis = new();
+
+    private readonly List<PathEntry> lines = new();
+
+    // Parameter
+
+    [Parameter]
+    public ChartBuildOption? BuildOption { get; set; }
+
+    [Parameter]
+    public IChartSource? Source
+    {
+        get => source;
+        set
+        {
+            if (source != value)
+            {
+                source = value;
+                changed = true;
+            }
+        }
+    }
+
+    [Parameter]
+    public int Width { get; set; }
+
+    [Parameter]
+    public int Height { get; set; }
+
+    // Property
+
+    private double CanvasWidth => Math.Max(Width - (MarginX * 2), 0);
+
+    private double CanvasHeight => Math.Max(Height - (MarginY * 2), 0);
+
+    protected override void OnParametersSet()
+    {
+        if (changed)
+        {
+            Build();
+            changed = true;
+        }
+    }
+
+    private void Build()
+    {
+        legends.Clear();
+        lines.Clear();
+        timeAxis.Clear();
+        value1Axis.Clear();
+        value2Axis.Clear();
+
+        if ((source is null) || (BuildOption is null))
+        {
+            return;
+        }
+
+        // Legend
+        var legendX = (Width - ((source.Value1Count + source.Value2Count + source.Threshold1Count) * LegendWidth)) / 2;
+        for (var item = 0; item < source.Value1Count; item++)
+        {
+            legends.Add(new LegendEntry
+            {
+                MarkerCenterX = legendX + LegendMarkerOffset,
+                MarkerCenterY = LegendMarkerRadius,
+                TextX = legendX + LegendTextOffset,
+                TextY = 0,
+                MarkerColor = BuildOption.ValuePalette[item % BuildOption.ValuePalette.Count],
+                Text = source.GetValueLegend(item)
+            });
+
+            legendX += LegendWidth;
+        }
+
+        for (var item = 0; item < source.Value2Count; item++)
+        {
+            legends.Add(new LegendEntry
+            {
+                MarkerCenterX = legendX + LegendMarkerOffset,
+                MarkerCenterY = LegendMarkerRadius,
+                TextX = legendX + LegendTextOffset,
+                TextY = 0,
+                MarkerColor = BuildOption.ValuePalette[(item + source.Value1Count) % BuildOption.ValuePalette.Count],
+                Text = source.GetValueLegend(item + source.Value1Count)
+            });
+
+            legendX += LegendWidth;
+        }
+
+        for (var item = 0; item < source.Threshold1Count; item++)
+        {
+            legends.Add(new LegendEntry
+            {
+                MarkerCenterX = legendX + LegendMarkerOffset,
+                MarkerCenterY = LegendMarkerRadius,
+                TextX = legendX + LegendTextOffset,
+                TextY = 0,
+                MarkerColor = BuildOption.ThresholdPalette[item % BuildOption.ThresholdPalette.Count],
+                Text = source.GetThresholdLegend(item)
+            });
+
+            legendX += LegendWidth;
+        }
+
+        // Label
+        label1 = BuildOption.Label1;
+        label2 = BuildOption.Label2;
+
+        // No data
+        if (source.Size == 0)
+        {
+            return;
+        }
+
+        // Create context
+        var minDateTime = source.MinDate;
+        var maxDateTime = source.MaxDate;
+        var maxValue1 = source.MaxValue1 ?? source.CalcMax1();
+        var maxValue2 = source.MaxValue2 ?? source.CalcMax2();
+        var context = new BuildContext
+        {
+            CanvasOffsetX = CanvasLeft,
+            CanvasOffsetY = CanvasTop,
+            CanvasWidth = CanvasWidth,
+            CanvasHeight = CanvasHeight,
+            MinTime = minDateTime.Ticks,
+            TimeRange = maxDateTime.Ticks - minDateTime.Ticks,
+            TimeAxis = BuildOption.TimeAxisCalculator(maxDateTime - minDateTime).Ticks,
+            MaxValue1 = maxValue1,
+            Value1Axis = BuildOption.Value1AxisCalculator(maxValue1),
+            MaxValue2 = maxValue2,
+            Value2Axis = BuildOption.Value1AxisCalculator(maxValue2)
+        };
+
+        // X Axis
+        var x = context.TimeAxis < TimeHour ? new DateTime(minDateTime.Year, minDateTime.Month, minDateTime.Day, minDateTime.Hour, 0, 0).Ticks : minDateTime.Date.Ticks;
+        while (x < context.MinTime)
+        {
+            x += context.TimeAxis;
+        }
+
+        while (x < context.MinTime + context.TimeRange)
+        {
+            var date = new DateTime(x);
+            var isMidnight = date.TimeOfDay.Ticks == 0;
+            var axisX = CalcChartX(context, x);
+            timeAxis.Add(new AxisEntry
+            {
+                DrawLine = x > context.MinTime && axisX <= context.CanvasOffsetX + context.CanvasWidth,
+                LineColor = isMidnight ? AxisLineColor2 : AxisLineColor,
+                Position = axisX,
+                Text = date.ToString(isMidnight ? BuildOption.DateFormat : BuildOption.TimeFormat)
+            });
+
+            x += context.TimeAxis;
+        }
+
+        // Y Axis
+        var y = 0d;
+        while (y + context.Value1Axis <= context.MaxValue1)
+        {
+            y += context.Value1Axis;
+
+            value1Axis.Add(new AxisEntry
+            {
+                DrawLine = y < context.MaxValue1,
+                LineColor = AxisLineColor,
+                Position = CalcChartY1(context, y),
+                Text = y.ToString(BuildOption.Value1Format)
+            });
+        }
+
+        y = 0d;
+        while (y + context.Value2Axis <= context.MaxValue2)
+        {
+            y += context.Value2Axis;
+
+            value2Axis.Add(new AxisEntry
+            {
+                DrawLine = false,
+                LineColor = AxisLineColor,
+                Position = CalcChartY2(context, y),
+                Text = y.ToString(BuildOption.Value2Format)
+            });
+        }
+
+        // No path
+        if (source.Size == 1)
+        {
+            return;
+        }
+
+        // Chart(Value1)
+        for (var item = 0; item < source.Value1Count; item++)
+        {
+            var builder = new ValuePathDataBuilder(source.Size);
+
+            for (var index = 0; index < source.Size; index++)
+            {
+                var value = source.GetValue1(item, index);
+                if (value.HasValue)
+                {
+                    builder.Add(CalcChartX(context, source.GetTime(index).Ticks), CalcChartY1(context, value.Value));
+                }
+            }
+
+            if (!builder.IsEmpty)
+            {
+                lines.Add(new PathEntry
+                {
+                    Width = ValuePathWidth,
+                    Color = BuildOption.ValuePalette[item % BuildOption.ValuePalette.Count],
+                    Data = builder.ToString()
+                });
+            }
+        }
+
+        // Chart(Value2)
+        for (var item = 0; item < source.Value2Count; item++)
+        {
+            var builder = new ValuePathDataBuilder(source.Size);
+
+            for (var index = 0; index < source.Size; index++)
+            {
+                var value = source.GetValue2(item, index);
+                if (value.HasValue)
+                {
+                    builder.Add(CalcChartX(context, source.GetTime(index).Ticks), CalcChartY2(context, value.Value));
+                }
+            }
+
+            if (!builder.IsEmpty)
+            {
+                lines.Add(new PathEntry
+                {
+                    Width = ValuePathWidth,
+                    Color = BuildOption.ValuePalette[(item + source.Value1Count) % BuildOption.ValuePalette.Count],
+                    Data = builder.ToString()
+                });
+            }
+        }
+
+        // Chart(Threshold)
+        for (var item = 0; item < source.Threshold1Count; item++)
+        {
+            var builder = new ThresholdPathDataBuilder(source.Size);
+
+            for (var index = 0; index < source.Size; index++)
+            {
+                var value = source.GetThreshold1(item, index);
+                builder.Add(CalcChartX(context, source.GetTime(index).Ticks), CalcChartY1(context, value));
+            }
+
+            builder.Flush();
+
+            lines.Add(new PathEntry
+            {
+                Width = ThresholdPathWidth,
+                Color = BuildOption.ThresholdPalette[item % BuildOption.ThresholdPalette.Count],
+                Data = builder.ToString()
+            });
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static double CalcChartX(BuildContext context, long tick) =>
+        ((double)(tick - context.MinTime) / context.TimeRange * context.CanvasWidth) + context.CanvasOffsetX;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static double CalcChartY1(BuildContext context, double value) =>
+        context.CanvasOffsetY + context.CanvasHeight - (value / context.MaxValue1 * context.CanvasHeight);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static double CalcChartY2(BuildContext context, double value) =>
+        context.CanvasOffsetY + context.CanvasHeight - (value / context.MaxValue2 * context.CanvasHeight);
+
+
+    // BuildContext
+    private class BuildContext
+    {
+        public double CanvasOffsetX { get; set; }
+
+        public double CanvasOffsetY { get; set; }
+
+        public double CanvasWidth { get; set; }
+
+        public double CanvasHeight { get; set; }
+
+        public long MinTime { get; set; }
+
+        public long TimeRange { get; set; }
+
+        public long TimeAxis { get; set; }
+
+        public double MaxValue1 { get; set; }
+
+        public double Value1Axis { get; set; }
+
+        public double MaxValue2 { get; set; }
+
+        public double Value2Axis { get; set; }
+    }
+
+    // Legend
+    private class LegendEntry
+    {
+        public double MarkerCenterX { get; set; }
+
+        public double MarkerCenterY { get; set; }
+
+        public double TextX { get; set; }
+
+        public double TextY { get; set; }
+
+        public string MarkerColor { get; set; } = default!;
+
+        public string Text { get; set; } = default!;
+    }
+
+    // Axis
+    private class AxisEntry
+    {
+        public bool DrawLine { get; set; }
+
+        public double Position { get; set; }
+
+        public string LineColor { get; set; } = default!;
+
+        public string Text { get; set; } = default!;
+    }
+
+    // Path
+    private class PathEntry
+    {
+        public double Width { get; set; } = default!;
+
+        public string Color { get; set; } = default!;
+
+        public string Data { get; set; } = default!;
+    }
+
+    // Value path builder
+    private class ValuePathDataBuilder
+    {
+        private readonly StringBuilder builder;
+
+        private double startX;
+
+        private double startY;
+
+        public bool IsEmpty => builder.Length == 0;
+
+        public ValuePathDataBuilder(int hint)
+        {
+            builder = new StringBuilder(20 * hint);
+        }
+
+        public void Add(double x, double y)
+        {
+            if (builder.Length == 0)
+            {
+                builder.Append($"M{x:0.##},{y:0.##}");
+                startX = x;
+                startY = y;
+            }
+            else
+            {
+                builder.Append($" L{x:0.##},{y:0.##}");
+            }
+        }
+
+        public override string ToString() => builder.ToString();
+    }
+
+    // Threshold path builder
+    private class ThresholdPathDataBuilder
+    {
+        private readonly StringBuilder builder;
+
+        private double lastX;
+
+        private double lastY;
+
+        private bool skip;
+
+        public ThresholdPathDataBuilder(int hint)
+        {
+            builder = new StringBuilder(20 * hint);
+        }
+
+        public void Add(double x, double y)
+        {
+            if (builder.Length == 0)
+            {
+                builder.Append($"M{x:0.##},{y:0.##}");
+            }
+            else
+            {
+                // ReSharper disable once CompareOfFloatsByEqualityOperator
+                if (lastY == y)
+                {
+                    skip = true;
+                }
+                else
+                {
+                    if (skip)
+                    {
+                        builder.Append($" L{x:0.##},{lastY:0.##}");
+                        skip = false;
+                    }
+
+                    builder.Append($" L{x:0.##},{y:0.##}");
+                }
+
+            }
+
+            lastY = y;
+            lastX = x;
+        }
+
+        public void Flush()
+        {
+            if (skip)
+            {
+                builder.Append($" L{lastX:0.##},{lastY:0.##}");
+                skip = false;
+            }
+        }
+
+        public override string ToString() => builder.ToString();
+    }
+}
