@@ -4,9 +4,9 @@ public interface IChartSource
 {
     int Size { get; }
 
-    DateTime MinDate { get; }
+    DateTime? MinDateTime { get; }
 
-    DateTime MaxDate { get; }
+    DateTime? MaxDateTime { get; }
 
     double? MaxValue1 { get; }
 

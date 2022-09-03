@@ -251,8 +251,8 @@
         }
 
         // Create context
-        var minDateTime = source.MinDate;
-        var maxDateTime = source.MaxDate;
+        var minDateTime = source.MinDateTime ?? source.GetTime(0);
+        var maxDateTime = source.MaxDateTime ?? source.GetTime(source.Size - 1);
         var maxValue1 = source.MaxValue1 ?? source.CalcMax1();
         var maxValue2 = source.MaxValue2 ?? source.CalcMax2();
         var context = new BuildContext

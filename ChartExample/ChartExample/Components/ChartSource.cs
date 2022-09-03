@@ -8,9 +8,9 @@ public class ChartSource<T> : IChartSource
 
     public int Size => list.Count;
 
-    public DateTime MinDate => TruncateSecond(GetTime(0));
+    public DateTime? MinDateTime { get; }
 
-    public DateTime MaxDate => TruncateSecond(GetTime(Size - 1)).AddMinutes(1);
+    public DateTime? MaxDateTime { get; }
 
     public double? MaxValue1 { get; }
 
@@ -34,9 +34,11 @@ public class ChartSource<T> : IChartSource
 
     public int Threshold1Count => Threshold1Selectors.Count;
 
-    public ChartSource(IList<T> list, double? maxValue1 = null, double? maxValue2 = null)
+    public ChartSource(IList<T> list, DateTime? minDateTime = null, DateTime? maxDateTime = null, double? maxValue1 = null, double? maxValue2 = null)
     {
         this.list = list;
+        MinDateTime = minDateTime;
+        MaxDateTime = maxDateTime;
         MaxValue1 = maxValue1;
         MaxValue2 = maxValue2;
     }
@@ -56,7 +58,4 @@ public class ChartSource<T> : IChartSource
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public double GetThreshold1(int item, int index) => Threshold1Selectors[item](list[index]);
-
-    private static DateTime TruncateSecond(DateTime value) =>
-        new(value.Year, value.Month, value.Day, value.Hour, value.Minute, 0);
 }
