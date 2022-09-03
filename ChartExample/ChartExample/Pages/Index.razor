@@ -10,6 +10,7 @@
     <button @onclick="() => OnClickAddStart(TimeSpan.FromMinutes(-5))">-5m</button>
     <button @onclick="() => OnClickAddStart(TimeSpan.FromMinutes(-1))">-1m</button>
     <button @onclick="() => OnClickAddStart(TimeSpan.FromSeconds(-30))">-30s</button>
+    <button @onclick="() => OnClickAddStart(TimeSpan.FromSeconds(30))">+30s</button>
     <button @onclick="() => OnClickAddStart(TimeSpan.FromMinutes(1))">+1m</button>
     <button @onclick="() => OnClickAddStart(TimeSpan.FromMinutes(5))">+5m</button>
     <button @onclick="() => OnClickAddStart(TimeSpan.FromHours(1))">+1h</button>
@@ -78,7 +79,13 @@
 
     private void Update()
     {
-        source = new ChartSource<Data>(MakeDataList(), maxValue2: 100);
+        var isDayData = size == 1440;
+        var list = MakeDataList();
+        source = new ChartSource<Data>(
+            list,
+            minDateTime: isDayData ? list[0].Timestamp.TruncateSecond() : null,
+            maxDateTime: isDayData ? list[^1].Timestamp.TruncateSecond().AddMinutes(1) : null,
+            maxValue2: 100);
         source.ValueLegends.Add("Value1");
         source.ValueLegends.Add("Value2");
         source.ValueLegends.Add("Value3");
