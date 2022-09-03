@@ -416,75 +416,71 @@
     // BuildContext
     private class BuildContext
     {
-        public double CanvasOffsetX { get; set; }
+        public double CanvasOffsetX { get; init; }
 
-        public double CanvasOffsetY { get; set; }
+        public double CanvasOffsetY { get; init; }
 
-        public double CanvasWidth { get; set; }
+        public double CanvasWidth { get; init; }
 
-        public double CanvasHeight { get; set; }
+        public double CanvasHeight { get; init; }
 
-        public long MinTime { get; set; }
+        public long MinTime { get; init; }
 
-        public long TimeRange { get; set; }
+        public long TimeRange { get; init; }
 
-        public long TimeAxis { get; set; }
+        public long TimeAxis { get; init; }
 
-        public double MaxValue1 { get; set; }
+        public double MaxValue1 { get; init; }
 
-        public double Value1Axis { get; set; }
+        public double Value1Axis { get; init; }
 
-        public double MaxValue2 { get; set; }
+        public double MaxValue2 { get; init; }
 
-        public double Value2Axis { get; set; }
+        public double Value2Axis { get; init; }
     }
 
     // Legend
     private class LegendEntry
     {
-        public double MarkerCenterX { get; set; }
+        public double MarkerCenterX { get; init; }
 
-        public double MarkerCenterY { get; set; }
+        public double MarkerCenterY { get; init; }
 
-        public double TextX { get; set; }
+        public double TextX { get; init; }
 
-        public double TextY { get; set; }
+        public double TextY { get; init; }
 
-        public string MarkerColor { get; set; } = default!;
+        public string MarkerColor { get; init; } = default!;
 
-        public string Text { get; set; } = default!;
+        public string Text { get; init; } = default!;
     }
 
     // Axis
     private class AxisEntry
     {
-        public bool DrawLine { get; set; }
+        public bool DrawLine { get; init; }
 
-        public double Position { get; set; }
+        public double Position { get; init; }
 
-        public string LineColor { get; set; } = default!;
+        public string LineColor { get; init; } = default!;
 
-        public string Text { get; set; } = default!;
+        public string Text { get; init; } = default!;
     }
 
     // Path
     private class PathEntry
     {
-        public double Width { get; set; } = default!;
+        public double Width { get; init; }
 
-        public string Color { get; set; } = default!;
+        public string Color { get; init; } = default!;
 
-        public string Data { get; set; } = default!;
+        public string Data { get; init; } = default!;
     }
 
     // Value path builder
     private class ValuePathDataBuilder
     {
         private readonly StringBuilder builder;
-
-        private double startX;
-
-        private double startY;
 
         public bool IsEmpty => builder.Length == 0;
 
@@ -495,16 +491,7 @@
 
         public void Add(double x, double y)
         {
-            if (builder.Length == 0)
-            {
-                builder.Append($"M{x:0.##},{y:0.##}");
-                startX = x;
-                startY = y;
-            }
-            else
-            {
-                builder.Append($" L{x:0.##},{y:0.##}");
-            }
+            builder.Append(builder.Length == 0 ? $"M{x:0.##},{y:0.##}" : $" L{x:0.##},{y:0.##}");
         }
 
         public override string ToString() => builder.ToString();
