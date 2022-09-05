@@ -195,31 +195,16 @@
 
         // Legend
         var legendX = (Width - ((source.Value1Count + source.Value2Count + source.Threshold1Count) * LegendWidth)) / 2;
-        for (var item = 0; item < source.Value1Count; item++)
+        for (var item = 0; item < source.Value1Count + source.Value2Count; item++)
         {
             legends.Add(new LegendEntry
             {
-                MarkerCenterX = legendX + LegendMarkerOffset,
+                MarkerCenterX = legendX + LegendMarkerRadius,
                 MarkerCenterY = LegendMarkerRadius,
                 TextX = legendX + LegendTextOffset,
                 TextY = 0,
                 MarkerColor = BuildOption.ValuePalette[item % BuildOption.ValuePalette.Count],
                 Text = source.GetValueLegend(item)
-            });
-
-            legendX += LegendWidth;
-        }
-
-        for (var item = 0; item < source.Value2Count; item++)
-        {
-            legends.Add(new LegendEntry
-            {
-                MarkerCenterX = legendX + LegendMarkerOffset,
-                MarkerCenterY = LegendMarkerRadius,
-                TextX = legendX + LegendTextOffset,
-                TextY = 0,
-                MarkerColor = BuildOption.ValuePalette[(item + source.Value1Count) % BuildOption.ValuePalette.Count],
-                Text = source.GetValueLegend(item + source.Value1Count)
             });
 
             legendX += LegendWidth;
