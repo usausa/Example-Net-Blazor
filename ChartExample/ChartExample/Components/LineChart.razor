@@ -76,30 +76,28 @@
     <!-- Legend -->
     <ListItem Items="legends">
         <ItemTemplate Context="entry">
-            <rect x="@entry.X" y="@(entry.Y - (LegendMarkerSize / 2))" width="@LegendMarkerSize" height="@LegendMarkerSize" fill="@entry.MarkerColor" />
-            <text x="@(entry.X + LegendMarkerSize + LegendMarkerMargin)" y="@entry.Y" dominant-baseline="central" style="text-anchor: start; fill: @LegendTextColor; font-size: @LegendFontSize;">@entry.ValueText</text>
-
+            <rect x="@(entry.X + LegendValueTextOffset)" y="@(entry.Y - (LegendMarkerSize / 2))" width="@LegendMarkerSize" height="@LegendMarkerSize" fill="@entry.MarkerColor" />
+            <text x="@(entry.X + LegendValueTextOffset + LegendMarkerSize + LegendMarkerMargin)" y="@entry.Y" dominant-baseline="central" style="text-anchor: start; fill: @LegendTextColor; font-size: @LegendFontSize;">@entry.ValueText</text>
             <text x="@(entry.X + LegendMinTextOffset)" y="@entry.Y" dominant-baseline="central" style="text-anchor: start; fill: @LegendTextColor; font-size: @LegendFontSize;">@legendMinText</text>
             <text x="@(entry.X + LegendMinValueOffset)" y="@entry.Y" dominant-baseline="central" style="text-anchor: end; fill: @LegendTextColor; font-size: @LegendFontSize;">@entry.MinValue</text>
-
             <text x="@(entry.X + LegendMaxTextOffset)" y="@entry.Y" dominant-baseline="central" style="text-anchor: start; fill: @LegendTextColor; font-size: @LegendFontSize;">@legendMaxText</text>
-
-
+            <text x="@(entry.X + LegendMaxValueOffset)" y="@entry.Y" dominant-baseline="central" style="text-anchor: end; fill: @LegendTextColor; font-size: @LegendFontSize;">@entry.MaxValue</text>
+            <Condition Value="!String.IsNullOrEmpty(entry.WarningText)">
+                <rect x="@(entry.X + LegendWarningTextOffset)" y="@(entry.Y - (LegendMarkerSize / 2))" width="@LegendMarkerSize" height="@LegendMarkerSize" fill="@entry.WarningColor" />
+                <text x="@(entry.X + LegendWarningTextOffset + LegendMarkerSize + LegendMarkerMargin)" y="@entry.Y" dominant-baseline="central" style="text-anchor: start; fill: @LegendTextColor; font-size: @LegendFontSize;">@entry.WarningText</text>
+                <text x="@(entry.X + LegendWarningValueOffset)" y="@entry.Y" dominant-baseline="central" style="text-anchor: end; fill: @LegendTextColor; font-size: @LegendFontSize;">@entry.WarningValue</text>
+            </Condition>
+            <Condition Value="!String.IsNullOrEmpty(entry.CriticalText)">
+                <rect x="@(entry.X + LegendCriticalTextOffset)" y="@(entry.Y - (LegendMarkerSize / 2))" width="@LegendMarkerSize" height="@LegendMarkerSize" fill="@entry.CriticalColor" />
+                <text x="@(entry.X + LegendCriticalTextOffset + LegendMarkerSize + LegendMarkerMargin)" y="@entry.Y" dominant-baseline="central" style="text-anchor: start; fill: @LegendTextColor; font-size: @LegendFontSize;">@entry.CriticalText</text>
+                <text x="@(entry.X + LegendCriticalValueOffset)" y="@entry.Y" dominant-baseline="central" style="text-anchor: end; fill: @LegendTextColor; font-size: @LegendFontSize;">@entry.CriticalValue</text>
+            </Condition>
         </ItemTemplate>
     </ListItem>
 
 @*
 <g>
         <!-- Data1 -->
-        <rect x="@(LegendCenter - 20 - 80 - 30 - 20 - 80 - 30 - 60 - 10 - 2)" y="@(CanvasTop + Height + 20 + 1)" width="10" height="10" fill="#00e676" />
-        <text x="@(LegendCenter - 20 - 80 - 30 - 20 - 80 - 30 - 60)" y="@(CanvasTop + Height + 20 + 6)" dominant-baseline="central" style="text-anchor: start; fill: @LegendTextColor; font-size: @LegendFontSize;">測定値1</text>
-
-        <text x="@(LegendCenter - 20 - 80 - 30 - 20 - 80 - 30)" y="@(CanvasTop + Height + 20 + 6)" dominant-baseline="central" style="text-anchor: start; fill: @LegendTextColor; font-size: @LegendFontSize;">最小値</text>
-        <text x="@(LegendCenter - 20 - 80 - 30 - 20)" y="@(CanvasTop + Height + 20 + 6)" dominant-baseline="central" style="text-anchor: end; fill: @LegendTextColor; font-size: @LegendFontSize;">99999999.99</text>
-
-        <text x="@(LegendCenter - 20 - 80 - 30)" y="@(CanvasTop + Height + 20 + 6)" dominant-baseline="central" style="text-anchor: start; fill: @LegendTextColor; font-size: @LegendFontSize;">最大値</text>
-        <text x="@(LegendCenter - 20)" y="@(CanvasTop + Height + 20 + 6)" dominant-baseline="central" style="text-anchor: end; fill: @LegendTextColor; font-size: @LegendFontSize;">99999999.99</text>
-
         <rect x="@(LegendCenter + 20)" y="@(CanvasTop + Height + 20 + 1)" width="10" height="10" fill="#ff9100" />
         <text x="@(LegendCenter + 20 + 12)" y="@(CanvasTop + Height + 20 + 6)" dominant-baseline="central" style="text-anchor: start; fill: @LegendTextColor; font-size: @LegendFontSize;">項目1閾値1</text>
         <text x="@(LegendCenter + 20 + 60 + 80)" y="@(CanvasTop + Height + 20 + 6)" dominant-baseline="central" style="text-anchor: end; fill: @LegendTextColor; font-size: @LegendFontSize;">99999999.99</text>
@@ -107,43 +105,6 @@
         <rect x="@(LegendCenter + 20 + 60 + 80 + 40)" y="@(CanvasTop + Height + 20 + 1)" width="10" height="10" fill="#ff1744" />
         <text x="@(LegendCenter + 20 + 60 + 80 + 40 + 12)" y="@(CanvasTop + Height + 20 + 6)" dominant-baseline="central" style="text-anchor: start; fill: @LegendTextColor; font-size: @LegendFontSize;">項目1閾値2</text>
         <text x="@(LegendCenter + 20 + 60 + 80 + 40 + 60 + 80)" y="@(CanvasTop + Height + 20 + 6)" dominant-baseline="central" style="text-anchor: end; fill: @LegendTextColor; font-size: @LegendFontSize;">99999999.99</text>
-
-        <!-- Data2 -->
-        <rect x="@(LegendCenter - 20 - 80 - 30 - 20 - 80 - 30 - 60 - 10 - 2)" y="@(CanvasTop + Height + 34 + 1)" width="10" height="10" fill="#2979ff" />
-        <text x="@(LegendCenter - 20 - 80 - 30 - 20 - 80 - 30 - 60)" y="@(CanvasTop + Height + 34 + 6)" dominant-baseline="central" style="text-anchor: start; fill: @LegendTextColor; font-size: @LegendFontSize;">測定値2</text>
-
-        <text x="@(LegendCenter - 20 - 80 - 30 - 20 - 80 - 30)" y="@(CanvasTop + Height + 34 + 6)" dominant-baseline="central" style="text-anchor: start; fill: @LegendTextColor; font-size: @LegendFontSize;">最小値</text>
-        <text x="@(LegendCenter - 20 - 80 - 30 - 20)" y="@(CanvasTop + Height + 34 + 6)" dominant-baseline="central" style="text-anchor: end; fill: @LegendTextColor; font-size: @LegendFontSize;">0.00</text>
-
-        <text x="@(LegendCenter - 20 - 80 - 30)" y="@(CanvasTop + Height + 34 + 6)" dominant-baseline="central" style="text-anchor: start; fill: @LegendTextColor; font-size: @LegendFontSize;">最大値</text>
-        <text x="@(LegendCenter - 20)" y="@(CanvasTop + Height + 34 + 6)" dominant-baseline="central" style="text-anchor: end; fill: @LegendTextColor; font-size: @LegendFontSize;">0.00</text>
-
-        <rect x="@(LegendCenter + 20)" y="@(CanvasTop + Height + 34 + 1)" width="10" height="10" fill="#ff9100" />
-        <text x="@(LegendCenter + 20 + 12)" y="@(CanvasTop + Height + 34 + 6)" dominant-baseline="central" style="text-anchor: start; fill: @LegendTextColor; font-size: @LegendFontSize;">項目2閾値1</text>
-        <text x="@(LegendCenter + 20 + 60 + 80)" y="@(CanvasTop + Height + 34 + 6)" dominant-baseline="central" style="text-anchor: end; fill: @LegendTextColor; font-size: @LegendFontSize;">0.00</text>
-
-        <rect x="@(LegendCenter + 20 + 60 + 80 + 40)" y="@(CanvasTop + Height + 34 + 1)" width="10" height="10" fill="#ff1744" />
-        <text x="@(LegendCenter + 20 + 60 + 80 + 40 + 12)" y="@(CanvasTop + Height + 34 + 6)" dominant-baseline="central" style="text-anchor: start; fill: @LegendTextColor; font-size: @LegendFontSize;">項目2閾値2</text>
-        <text x="@(LegendCenter + 20 + 60 + 80 + 40 + 60 + 80)" y="@(CanvasTop + Height + 34 + 6)" dominant-baseline="central" style="text-anchor: end; fill: @LegendTextColor; font-size: @LegendFontSize;">0.00</text>
-
-        <!-- Data3 -->
-        <rect x="@(LegendCenter - 20 - 80 - 30 - 20 - 80 - 30 - 60 - 10 - 2)" y="@(CanvasTop + Height + 48 + 1)" width="10" height="10" fill="#00e5ff" />
-        <text x="@(LegendCenter - 20 - 80 - 30 - 20 - 80 - 30 - 60)" y="@(CanvasTop + Height + 48 + 6)" dominant-baseline="central" style="text-anchor: start; fill: @LegendTextColor; font-size: @LegendFontSize;">測定値3</text>
-
-        <text x="@(LegendCenter - 20 - 80 - 30 - 20 - 80 - 30)" y="@(CanvasTop + Height + 48 + 6)" dominant-baseline="central" style="text-anchor: start; fill: @LegendTextColor; font-size: @LegendFontSize;">最小値</text>
-        <text x="@(LegendCenter - 20 - 80 - 30 - 20)" y="@(CanvasTop + Height + 48 + 6)" dominant-baseline="central" style="text-anchor: end; fill: @LegendTextColor; font-size: @LegendFontSize;">0.00</text>
-
-        <text x="@(LegendCenter - 20 - 80 - 30)" y="@(CanvasTop + Height + 48 + 6)" dominant-baseline="central" style="text-anchor: start; fill: @LegendTextColor; font-size: @LegendFontSize;">最大値</text>
-        <text x="@(LegendCenter - 20)" y="@(CanvasTop + Height + 48 + 6)" dominant-baseline="central" style="text-anchor: end; fill: @LegendTextColor; font-size: @LegendFontSize;">100.00</text>
-
-        <rect x="@(LegendCenter + 20)" y="@(CanvasTop + Height + 48 + 1)" width="10" height="10" fill="#ff9100" />
-        <text x="@(LegendCenter + 20 + 12)" y="@(CanvasTop + Height + 48 + 6)" dominant-baseline="central" style="text-anchor: start; fill: @LegendTextColor; font-size: @LegendFontSize;">項目3閾値1</text>
-        <text x="@(LegendCenter + 20 + 60 + 80)" y="@(CanvasTop + Height + 48 + 6)" dominant-baseline="central" style="text-anchor: end; fill: @LegendTextColor; font-size: @LegendFontSize;">0.00</text>
-
-        <rect x="@(LegendCenter + 20 + 60 + 80 + 40)" y="@(CanvasTop + Height + 48 + 1)" width="10" height="10" fill="#ff1744" />
-        <text x="@(LegendCenter + 20 + 60 + 80 + 40 + 12)" y="@(CanvasTop + Height + 48 + 6)" dominant-baseline="central" style="text-anchor: start; fill: @LegendTextColor; font-size: @LegendFontSize;">項目3閾値2</text>
-        <text x="@(LegendCenter + 20 + 60 + 80 + 40 + 60 + 80)" y="@(CanvasTop + Height + 48 + 6)" dominant-baseline="central" style="text-anchor: end; fill: @LegendTextColor; font-size: @LegendFontSize;">100.00</text>
-   //private double LegendCenter => MarginLeft + (Width / 2);
     </g>
 *@
 </svg>
@@ -172,10 +133,15 @@
     private const double LegendValueMargin = 40;
     private const double LegendSubValueMargin = 20;
 
-    private const double LegendMinTextOffset = LegendTextWidth;
+    private const double LegendValueTextOffset = 0;
+    private const double LegendMinTextOffset = LegendValueTextOffset + LegendTextWidth;
     private const double LegendMinValueOffset = LegendMinTextOffset + LegendSubTextWidth + LegendValueWidth;
     private const double LegendMaxTextOffset = LegendMinValueOffset + LegendSubValueMargin;
-    // TODO
+    private const double LegendMaxValueOffset = LegendMaxTextOffset + LegendSubTextWidth + LegendValueWidth;
+    private const double LegendWarningTextOffset = LegendMaxValueOffset + LegendValueMargin;
+    private const double LegendWarningValueOffset = LegendWarningTextOffset + LegendTextWidth + LegendValueWidth;
+    private const double LegendCriticalTextOffset = LegendWarningValueOffset + LegendValueMargin;
+    private const double LegendCriticalValueOffset = LegendCriticalTextOffset + LegendTextWidth + LegendValueWidth;
 
     private const double LegendMarkerSize = 10;
     private const double LegendMarkerMargin = 2;
@@ -287,7 +253,7 @@
         legendMinText = BuildOption.LegendMinText;
         legendMaxText = BuildOption.LegendMaxText;
 
-        var legendWidth = LegendTextWidth + ((LegendSubTextWidth + LegendValueWidth) * 2) +
+        var legendWidth = LegendTextWidth + ((LegendSubTextWidth + LegendValueWidth) * 2) + LegendSubValueMargin +
                           ((LegendValueMargin + LegendTextWidth + LegendValueWidth) * (source.Legends.Any(x => !String.IsNullOrEmpty(x.Warning)) ? 1 : 0)) +
                           ((LegendValueMargin + LegendTextWidth + LegendValueWidth) * (source.Legends.Any(x => !String.IsNullOrEmpty(x.Critical)) ? 1 : 0));
         var baseX = (ChartWidth - legendWidth) / 2;
