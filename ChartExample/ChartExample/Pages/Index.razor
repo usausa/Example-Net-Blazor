@@ -2,7 +2,7 @@
 
 <PageTitle>Index</PageTitle>
 
-<LineChart Width="860" Height="332" Source="source" BuildOption="BuildOption" />
+<LineChart Width="720" Height="250" Source="source" BuildOption="BuildOption" />
 
 <h6>Start</h6>
 <div>
@@ -86,18 +86,16 @@
             minDateTime: isDayData ? list[0].Timestamp.TruncateSecond() : null,
             maxDateTime: isDayData ? list[^1].Timestamp.TruncateSecond().AddMinutes(1) : null,
             maxValue2: 100);
-        // TODO
-        //source.ValueLegends.Add("Value1");
-        //source.ValueLegends.Add("Value2");
-        //source.ValueLegends.Add("Value3");
-        //source.ThresholdLegends.Add("Warning1");
-        //source.ThresholdLegends.Add("Warning2");
         source.TimeSelector = x => x.Timestamp;
         source.Value1Selectors.Add(x => x.Value1);
         source.Value1Selectors.Add(x => x.Value2);
         source.Value2Selectors.Add(x => x.Value3 * 100);
-        source.Threshold1Selectors.Add(x => x.Threshold1);
-        source.Threshold1Selectors.Add(x => x.Threshold2);
+        source.ThresholdSelectors.Add(x => x.Threshold11);
+        source.ThresholdSelectors.Add(x => x.Threshold12);
+        source.ThresholdSelectors.Add(x => x.Threshold21);
+        source.Legends.Add(new LegendEntry("Value1", "Warning1", "Critical1"));
+        source.Legends.Add(new LegendEntry("Value2", "Warning2"));
+        source.Legends.Add(new LegendEntry("Value3"));
     }
 
 #pragma warning disable CA5394
@@ -114,8 +112,9 @@
                     Value1 = 90 + rand.Next(20),
                     Value2 = 190 + rand.Next(20),
                     Value3 = (x % 101) * 0.01,
-                    Threshold1 = timestamp.TimeOfDay < TimeSpan.FromHours(12) ? 100 : 110,
-                    Threshold2 = timestamp.TimeOfDay < TimeSpan.FromHours(12) ? 200 : 210
+                    Threshold11 = timestamp.TimeOfDay < TimeSpan.FromHours(12) ? 100 : 110,
+                    Threshold12 = timestamp.TimeOfDay < TimeSpan.FromHours(12) ? 200 : 210,
+                    Threshold21 = 50
                 };
             })
             .ToList();
@@ -132,8 +131,10 @@
 
         public double? Value3 { get; set; }
 
-        public double Threshold1 { get; set; }
+        public double Threshold11 { get; set; }
 
-        public double Threshold2 { get; set; }
+        public double Threshold12 { get; set; }
+
+        public double Threshold21 { get; set; }
     }
 }

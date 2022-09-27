@@ -16,7 +16,11 @@ public interface IChartSource
 
     int Value2Count { get; }
 
-    int Threshold1Count { get; }
+    int ThresholdCount { get; }
+
+    int LegendCount { get; }
+
+    LegendEntry GetLegend(int item);
 
     DateTime GetTime(int index);
 
@@ -24,5 +28,5 @@ public interface IChartSource
 
     double? GetValue2(int item, int index);
 
-    double GetThreshold1(int item, int index);
+    double GetThreshold(int item, int index);
 }

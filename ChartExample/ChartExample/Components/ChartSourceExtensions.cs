@@ -17,11 +17,11 @@ public static class ChartSourceExtensions
             }
         }
 
-        for (var item = 0; item < source.Threshold1Count; item++)
+        for (var item = 0; item < source.ThresholdCount; item++)
         {
             for (var index = 0; index < source.Size; index++)
             {
-                var value = source.GetThreshold1(item, index);
+                var value = source.GetThreshold(item, index);
                 if (value > max)
                 {
                     max = value;
