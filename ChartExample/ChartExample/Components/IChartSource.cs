@@ -18,9 +18,7 @@ public interface IChartSource
 
     int ThresholdCount { get; }
 
-    int LegendCount { get; }
-
-    LegendEntry GetLegend(int item);
+    IList<LegendEntry> Legends { get; }
 
     DateTime GetTime(int index);
 

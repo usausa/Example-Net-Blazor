@@ -93,9 +93,9 @@
         source.ThresholdSelectors.Add(x => x.Threshold11);
         source.ThresholdSelectors.Add(x => x.Threshold12);
         source.ThresholdSelectors.Add(x => x.Threshold21);
-        source.Legends.Add(new LegendEntry("Value1", "Warning1", "Critical1"));
-        source.Legends.Add(new LegendEntry("Value2", "Warning2"));
-        source.Legends.Add(new LegendEntry("Value3"));
+        source.AddLegend("Value1", "Warning1", "Critical1");
+        source.AddLegend("Value2", "Warning2");
+        source.AddLegend("Value3");
     }
 
 #pragma warning disable CA5394

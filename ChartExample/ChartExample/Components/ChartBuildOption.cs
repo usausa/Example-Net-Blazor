@@ -34,3 +34,12 @@ public class ChartBuildOption
         "#651fff"
     };
 }
+
+public static class ChartBuildOptionExtensions
+{
+    public static string GetValuePalette(this ChartBuildOption option, int index) =>
+        option.ValuePalette[index % option.ValuePalette.Length];
+
+    public static string GetThresholdPalette(this ChartBuildOption option, int index) =>
+        option.ThresholdPalette[index % option.ThresholdPalette.Length];
+}

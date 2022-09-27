@@ -14,16 +14,6 @@
         <rect x="@CanvasLeft" y="@CanvasTop" width="@Width" height="@Height" fill="@CanvasBackgroundColor" />
     </g>
 
-    <!-- Legend -->
-    <g>
-        <ListItem Items="legends">
-            <ItemTemplate Context="entry">
-                <circle cx="@entry.MarkerCenterX" cy="@entry.MarkerCenterY" r="@LegendMarkerRadius" fill="@entry.MarkerColor" />
-                <text x="@entry.TextX" y="@entry.TextY" dominant-baseline="text-before-edge" style="text-anchor: start; fill: @LegendTextColor; font-size: @LegendFontSize;">@entry.Text</text>
-            </ItemTemplate>
-        </ListItem>
-    </g>
-
     <!-- Label -->
     <g>
         <text x="@CanvasLeft" y="0" dominant-baseline="text-before-edge" style="text-anchor: end; fill: @LabelTextColor; font-size: @LabelFontSize;">@label1</text>
@@ -82,7 +72,16 @@
         </ListItem>
     </g>
 
-    <g>
+    <!-- Legend -->
+    <ListItem Items="legends">
+        <ItemTemplate Context="entry">
+            <rect x="@entry.X" y="@(entry.Y + ((LegendHeight - LegendMarkerSize) / 2))" width="@LegendMarkerSize" height="@LegendMarkerSize" fill="@entry.MarkerColor" />
+
+        </ItemTemplate>
+    </ListItem>
+
+@*
+<g>
         <!-- Data1 -->
         <rect x="@(LegendCenter - 20 - 80 - 30 - 20 - 80 - 30 - 60 - 10 - 2)" y="@(CanvasTop + Height + 20 + 1)" width="10" height="10" fill="#00e676" />
         <text x="@(LegendCenter - 20 - 80 - 30 - 20 - 80 - 30 - 60)" y="@(CanvasTop + Height + 20 + 6)" dominant-baseline="central" style="text-anchor: start; fill: @LegendTextColor; font-size: @LegendFontSize;">測定値1</text>
@@ -136,17 +135,17 @@
         <rect x="@(LegendCenter + 20 + 60 + 80 + 40)" y="@(CanvasTop + Height + 48 + 1)" width="10" height="10" fill="#ff1744" />
         <text x="@(LegendCenter + 20 + 60 + 80 + 40 + 12)" y="@(CanvasTop + Height + 48 + 6)" dominant-baseline="central" style="text-anchor: start; fill: @LegendTextColor; font-size: @LegendFontSize;">項目3閾値2</text>
         <text x="@(LegendCenter + 20 + 60 + 80 + 40 + 60 + 80)" y="@(CanvasTop + Height + 48 + 6)" dominant-baseline="central" style="text-anchor: end; fill: @LegendTextColor; font-size: @LegendFontSize;">100.00</text>
+   //private double LegendCenter => MarginLeft + (Width / 2);
     </g>
+*@
 </svg>
 
 @code {
-    private double LegendCenter => MarginLeft + (Width / 2);
-
 #pragma warning disable CA1823
-    private const int MarginLeft = 70;
-    private const int MarginRight = 70;
-    private const int MarginTop = 20;
-    private const int MarginBottom = 60;
+    private const double MarginLeft = 70;
+    private const double MarginRight = 70;
+    private const double MarginTop = 20;
+    private const double MarginBottom = 20;
 
     private const double CanvasLeft = MarginLeft;
     private const double CanvasTop = MarginTop;
@@ -156,9 +155,17 @@
     private const double CanvasBorderWidth = 0.5;
     private const string CanvasBorderColor = "#424242";
 
-    private const double LegendWidth = 64;
-    private const double LegendMarkerRadius = 6;
-    private const double LegendTextOffset = 16;
+    private const double LegendHeight = 12;
+    private const double LegendMarginY = 2;
+
+    private const double LegendTextWidth = 70;
+    private const double LegendSubTextWidth = 40;
+    private const double LegendValueWidth = 70;
+    private const double LegendValueMargin = 40;
+    private const double LegendSubValueMargin = 20;
+
+    private const double LegendMarkerSize = 10;
+    private const double LegendMarkerMargin = 2;
 
     private const string LegendTextColor = "#212121";
     private const string LegendFontSize = "8pt";
@@ -232,7 +239,7 @@
 
     private double ChartWidth => Width + MarginLeft + MarginRight;
 
-    private double ChartHeight => Height + MarginTop + MarginBottom;
+    private double ChartHeight => Height + MarginTop + MarginBottom + (LegendHeight * legends.Count) + (LegendMarginY * Math.Max(legends.Count - 1, 0));
 
     protected override void OnParametersSet()
     {
@@ -259,6 +266,49 @@
         // Label
         label1 = BuildOption.Label1;
         label2 = BuildOption.Label2;
+
+        // Legend
+        var legendWidth = LegendTextWidth + ((LegendSubTextWidth + LegendValueWidth) * 2) +
+                          ((LegendValueMargin + LegendTextWidth + LegendValueWidth) * (source.Legends.Any(x => !String.IsNullOrEmpty(x.Warning)) ? 1 : 0)) +
+                          ((LegendValueMargin + LegendTextWidth + LegendValueWidth) * (source.Legends.Any(x => !String.IsNullOrEmpty(x.Critical)) ? 1 : 0));
+        var baseX = (ChartWidth - legendWidth) / 2;
+        var baseY = Height + MarginTop + MarginBottom;
+        var thresholdOffset = 0;
+        for (var i = 0; i < source.Legends.Count; i++)
+        {
+            var legend = source.Legends[i];
+            var isValue1 = i < source.Value1Count;
+            var isValue2 = i < source.Value1Count + source.Value2Count;
+
+            var makerColor = BuildOption.GetValuePalette(i);
+            var minValue = isValue1 ? source.FindMinValue1(i) : isValue2 ? source.FindMinValue2(i - source.Value1Count) : null;
+            var maxValue = isValue1 ? source.FindMaxValue1(i) : isValue2 ? source.FindMaxValue2(i - source.Value1Count) : null;
+
+            var hasWarning = !String.IsNullOrEmpty(legend.Warning);
+            var warningValue = (hasWarning && (thresholdOffset < source.ThresholdCount)) ? source.FindThresholdValue(thresholdOffset) : null;
+            var warningColor = BuildOption.GetThresholdPalette(thresholdOffset);
+            thresholdOffset += hasWarning ? 1 : 0;
+
+            var hasCritical = !String.IsNullOrEmpty(legend.Critical);
+            var criticalValue = (hasCritical && (thresholdOffset < source.ThresholdCount)) ? source.FindThresholdValue(thresholdOffset) : null;
+            var criticalColor = BuildOption.GetThresholdPalette(thresholdOffset);
+            thresholdOffset += hasCritical ? 1 : 0;
+
+            legends.Add(new LegendEntry
+            {
+                X = baseX,
+                Y = baseY,
+                MarkerColor = makerColor,
+                MinText = minValue.HasValue ? minValue.Value.ToString(isValue1 ? BuildOption.Value1Format : BuildOption.Value2Format, CultureInfo.InvariantCulture) : "-",
+                MaxText = maxValue.HasValue ? maxValue.Value.ToString(isValue1 ? BuildOption.Value1Format : BuildOption.Value2Format, CultureInfo.InvariantCulture) : "-",
+                WarningColor = warningColor,
+                WarningText = warningValue.HasValue ? warningValue.Value.ToString(isValue1 ? BuildOption.Value1Format : BuildOption.Value2Format, CultureInfo.InvariantCulture) : "-",
+                CriticalColor = criticalColor,
+                CriticalText = criticalValue.HasValue ? criticalValue.Value.ToString(isValue1 ? BuildOption.Value1Format : BuildOption.Value2Format, CultureInfo.InvariantCulture) : "-",
+            });
+
+            baseY += LegendHeight + LegendMarginY;
+        }
 
         // No data
         if (source.Size == 0)
@@ -287,54 +337,54 @@
             };
 
         // X Axis
-        var x = context.TimeAxis < TimeHour ? new DateTime(minDateTime.Year, minDateTime.Month, minDateTime.Day, minDateTime.Hour, 0, 0).Ticks : minDateTime.Date.Ticks;
-        while (x < context.MinTime)
+        var timeX = context.TimeAxis < TimeHour ? new DateTime(minDateTime.Year, minDateTime.Month, minDateTime.Day, minDateTime.Hour, 0, 0).Ticks : minDateTime.Date.Ticks;
+        while (timeX < context.MinTime)
         {
-            x += context.TimeAxis;
+            timeX += context.TimeAxis;
         }
 
-        while (x < context.MinTime + context.TimeRange)
+        while (timeX < context.MinTime + context.TimeRange)
         {
-            var date = new DateTime(x);
+            var date = new DateTime(timeX);
             var isMidnight = date.TimeOfDay.Ticks == 0;
-            var axisX = CalcChartX(context, x);
+            var axisX = CalcChartX(context, timeX);
             timeAxis.Add(new AxisEntry
                 {
-                    DrawLine = x > context.MinTime && axisX <= context.CanvasOffsetX + context.CanvasWidth,
+                    DrawLine = timeX > context.MinTime && axisX <= context.CanvasOffsetX + context.CanvasWidth,
                     LineColor = isMidnight ? AxisLineColor2 : AxisLineColor,
                     Position = axisX,
                     Text = date.ToString(isMidnight ? BuildOption.DateFormat : BuildOption.TimeFormat, CultureInfo.InvariantCulture)
                 });
 
-            x += context.TimeAxis;
+            timeX += context.TimeAxis;
         }
 
         // Y Axis
-        var y = 0d;
-        while (y + context.Value1Axis <= context.MaxValue1)
+        var axisY = 0d;
+        while (axisY + context.Value1Axis <= context.MaxValue1)
         {
-            y += context.Value1Axis;
+            axisY += context.Value1Axis;
 
             value1Axis.Add(new AxisEntry
                 {
-                    DrawLine = y < context.MaxValue1,
+                    DrawLine = axisY < context.MaxValue1,
                     LineColor = AxisLineColor,
-                    Position = CalcChartY1(context, y),
-                    Text = y.ToString(BuildOption.Value1Format, CultureInfo.InvariantCulture)
+                    Position = CalcChartY1(context, axisY),
+                    Text = axisY.ToString(BuildOption.Value1Format, CultureInfo.InvariantCulture)
                 });
         }
 
-        y = 0d;
-        while (y + context.Value2Axis <= context.MaxValue2)
+        axisY = 0d;
+        while (axisY + context.Value2Axis <= context.MaxValue2)
         {
-            y += context.Value2Axis;
+            axisY += context.Value2Axis;
 
             value2Axis.Add(new AxisEntry
                 {
                     DrawLine = false,
                     LineColor = AxisLineColor,
-                    Position = CalcChartY2(context, y),
-                    Text = y.ToString(BuildOption.Value2Format, CultureInfo.InvariantCulture)
+                    Position = CalcChartY2(context, axisY),
+                    Text = axisY.ToString(BuildOption.Value2Format, CultureInfo.InvariantCulture)
                 });
         }
 
@@ -363,7 +413,7 @@
                 lines.Add(new PathEntry
                     {
                         Width = ValuePathWidth,
-                        Color = BuildOption.ValuePalette[item % BuildOption.ValuePalette.Length],
+                        Color = BuildOption.GetValuePalette(item),
                         Data = builder.ToString()
                     });
             }
@@ -388,7 +438,7 @@
                 lines.Add(new PathEntry
                     {
                         Width = ValuePathWidth,
-                        Color = BuildOption.ValuePalette[(item + source.Value1Count) % BuildOption.ValuePalette.Length],
+                        Color = BuildOption.GetValuePalette(item + source.Value1Count),
                         Data = builder.ToString()
                     });
             }
@@ -410,7 +460,7 @@
             lines.Add(new PathEntry
                 {
                     Width = ThresholdPathWidth,
-                    Color = BuildOption.ThresholdPalette[item % BuildOption.ThresholdPalette.Length],
+                    Color = BuildOption.GetThresholdPalette(item),
                     Data = builder.ToString()
                 });
         }
@@ -457,17 +507,23 @@
     // Legend
     private class LegendEntry
     {
-        public double MarkerCenterX { get; init; }
+        public double X { get; init; }
 
-        public double MarkerCenterY { get; init; }
-
-        public double TextX { get; init; }
-
-        public double TextY { get; init; }
+        public double Y { get; init; }
 
         public string MarkerColor { get; init; } = default!;
 
-        public string Text { get; init; } = default!;
+        public string MinText { get; init; } = default!;
+
+        public string MaxText { get; init; } = default!;
+
+        public string WarningColor { get; init; } = default!;
+
+        public string WarningText { get; init; } = default!;
+
+        public string CriticalColor { get; init; } = default!;
+
+        public string CriticalText { get; init; } = default!;
     }
 
     // Axis

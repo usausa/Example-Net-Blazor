@@ -22,15 +22,13 @@ public class ChartSource<T> : IChartSource
 
     public List<Func<T, double>> ThresholdSelectors { get; } = new();
 
-    public List<LegendEntry> Legends { get; } = new();
-
     public int Value1Count => Value1Selectors.Count;
 
     public int Value2Count => Value2Selectors.Count;
 
     public int ThresholdCount => ThresholdSelectors.Count;
 
-    public int LegendCount => Legends.Count;
+    public IList<LegendEntry> Legends { get; } = new List<LegendEntry>();
 
     public ChartSource(IList<T> list, DateTime? minDateTime = null, DateTime? maxDateTime = null, double? maxValue1 = null, double? maxValue2 = null)
     {
@@ -41,7 +39,10 @@ public class ChartSource<T> : IChartSource
         MaxValue2 = maxValue2;
     }
 
-    public LegendEntry GetLegend(int item) => Legends[item];
+    public void AddLegend(string value, string warning = "", string critical = "")
+    {
+        Legends.Add(new LegendEntry { Value = value, Warning = warning, Critical = critical });
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public DateTime GetTime(int index) => TimeSelector(list[index]);
