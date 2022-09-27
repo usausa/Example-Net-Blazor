@@ -1,3 +1,4 @@
+@using Microsoft.IdentityModel.Tokens
 <svg xmlns="http://www.w3.org/2000/svg" width="@ChartWidth" height="@ChartHeight">
 
     <defs>
@@ -75,7 +76,14 @@
     <!-- Legend -->
     <ListItem Items="legends">
         <ItemTemplate Context="entry">
-            <rect x="@entry.X" y="@(entry.Y + ((LegendHeight - LegendMarkerSize) / 2))" width="@LegendMarkerSize" height="@LegendMarkerSize" fill="@entry.MarkerColor" />
+            <rect x="@entry.X" y="@(entry.Y - (LegendMarkerSize / 2))" width="@LegendMarkerSize" height="@LegendMarkerSize" fill="@entry.MarkerColor" />
+            <text x="@(entry.X + LegendMarkerSize + LegendMarkerMargin)" y="@entry.Y" dominant-baseline="central" style="text-anchor: start; fill: @LegendTextColor; font-size: @LegendFontSize;">@entry.ValueText</text>
+
+            <text x="@(entry.X + LegendMinTextOffset)" y="@entry.Y" dominant-baseline="central" style="text-anchor: start; fill: @LegendTextColor; font-size: @LegendFontSize;">@legendMinText</text>
+            <text x="@(entry.X + LegendMinValueOffset)" y="@entry.Y" dominant-baseline="central" style="text-anchor: end; fill: @LegendTextColor; font-size: @LegendFontSize;">@entry.MinValue</text>
+
+            <text x="@(entry.X + LegendMaxTextOffset)" y="@entry.Y" dominant-baseline="central" style="text-anchor: start; fill: @LegendTextColor; font-size: @LegendFontSize;">@legendMaxText</text>
+
 
         </ItemTemplate>
     </ListItem>
@@ -164,6 +172,11 @@
     private const double LegendValueMargin = 40;
     private const double LegendSubValueMargin = 20;
 
+    private const double LegendMinTextOffset = LegendTextWidth;
+    private const double LegendMinValueOffset = LegendMinTextOffset + LegendSubTextWidth + LegendValueWidth;
+    private const double LegendMaxTextOffset = LegendMinValueOffset + LegendSubValueMargin;
+    // TODO
+
     private const double LegendMarkerSize = 10;
     private const double LegendMarkerMargin = 2;
 
@@ -199,6 +212,9 @@
     // Data
 
     private readonly List<LegendEntry> legends = new();
+
+    private string? legendMinText;
+    private string? legendMaxText;
 
     private string? label1;
     private string? label2;
@@ -268,11 +284,14 @@
         label2 = BuildOption.Label2;
 
         // Legend
+        legendMinText = BuildOption.LegendMinText;
+        legendMaxText = BuildOption.LegendMaxText;
+
         var legendWidth = LegendTextWidth + ((LegendSubTextWidth + LegendValueWidth) * 2) +
                           ((LegendValueMargin + LegendTextWidth + LegendValueWidth) * (source.Legends.Any(x => !String.IsNullOrEmpty(x.Warning)) ? 1 : 0)) +
                           ((LegendValueMargin + LegendTextWidth + LegendValueWidth) * (source.Legends.Any(x => !String.IsNullOrEmpty(x.Critical)) ? 1 : 0));
         var baseX = (ChartWidth - legendWidth) / 2;
-        var baseY = Height + MarginTop + MarginBottom;
+        var baseY = Height + MarginTop + MarginBottom + (LegendHeight / 2);
         var thresholdOffset = 0;
         for (var i = 0; i < source.Legends.Count; i++)
         {
@@ -299,12 +318,15 @@
                 X = baseX,
                 Y = baseY,
                 MarkerColor = makerColor,
-                MinText = minValue.HasValue ? minValue.Value.ToString(isValue1 ? BuildOption.Value1Format : BuildOption.Value2Format, CultureInfo.InvariantCulture) : "-",
-                MaxText = maxValue.HasValue ? maxValue.Value.ToString(isValue1 ? BuildOption.Value1Format : BuildOption.Value2Format, CultureInfo.InvariantCulture) : "-",
+                    ValueText = legend.Value,
+                MinValue = minValue.HasValue ? minValue.Value.ToString(isValue1 ? BuildOption.Value1Format : BuildOption.Value2Format, CultureInfo.InvariantCulture) : "-",
+                MaxValue = maxValue.HasValue ? maxValue.Value.ToString(isValue1 ? BuildOption.Value1Format : BuildOption.Value2Format, CultureInfo.InvariantCulture) : "-",
                 WarningColor = warningColor,
-                WarningText = warningValue.HasValue ? warningValue.Value.ToString(isValue1 ? BuildOption.Value1Format : BuildOption.Value2Format, CultureInfo.InvariantCulture) : "-",
+                WarningText = legend.Warning,
+                WarningValue = warningValue.HasValue ? warningValue.Value.ToString(isValue1 ? BuildOption.Value1Format : BuildOption.Value2Format, CultureInfo.InvariantCulture) : "-",
                 CriticalColor = criticalColor,
-                CriticalText = criticalValue.HasValue ? criticalValue.Value.ToString(isValue1 ? BuildOption.Value1Format : BuildOption.Value2Format, CultureInfo.InvariantCulture) : "-",
+                CriticalText = legend.Critical,
+                CriticalValue = criticalValue.HasValue ? criticalValue.Value.ToString(isValue1 ? BuildOption.Value1Format : BuildOption.Value2Format, CultureInfo.InvariantCulture) : "-",
             });
 
             baseY += LegendHeight + LegendMarginY;
@@ -513,17 +535,23 @@
 
         public string MarkerColor { get; init; } = default!;
 
-        public string MinText { get; init; } = default!;
+        public string ValueText { get; init; } = default!;
 
-        public string MaxText { get; init; } = default!;
+        public string MinValue { get; init; } = default!;
+
+        public string MaxValue { get; init; } = default!;
 
         public string WarningColor { get; init; } = default!;
 
         public string WarningText { get; init; } = default!;
 
+        public string WarningValue { get; init; } = default!;
+
         public string CriticalColor { get; init; } = default!;
 
         public string CriticalText { get; init; } = default!;
+
+        public string CriticalValue { get; init; } = default!;
     }
 
     // Axis

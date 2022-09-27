@@ -14,6 +14,10 @@ public class ChartBuildOption
 
     public string Label2 { get; set; } = string.Empty;
 
+    public string LegendMinText { get; set; } = "最小値";
+
+    public string LegendMaxText { get; set; } = "最大値";
+
     public Func<TimeSpan, TimeSpan> TimeAxisCalculator { get; set; } = DefaultTimeAxisCalculator.Calc;
 
     public Func<double, double> Value1AxisCalculator { get; set; } = DefaultValueAxisCalculator.Calc;
