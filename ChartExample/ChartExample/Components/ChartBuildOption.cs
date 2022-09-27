@@ -20,14 +20,14 @@ public class ChartBuildOption
 
     public Func<double, double> Value2AxisCalculator { get; set; } = DefaultValueAxisCalculator.Calc;
 
-    public List<string> ValuePalette { get; } = new()
+    public string[] ValuePalette { get; set; } =
     {
         "#00e676",
         "#2979ff",
         "#00e5ff"
     };
 
-    public List<string> ThresholdPalette { get; } = new()
+    public string[] ThresholdPalette { get; set; } =
     {
         "#ff9100",
         "#ff1744",

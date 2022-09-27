@@ -18,10 +18,6 @@ public interface IChartSource
 
     int Threshold1Count { get; }
 
-    string GetValueLegend(int item);
-
-    string GetThresholdLegend(int item);
-
     DateTime GetTime(int index);
 
     double? GetValue1(int item, int index);

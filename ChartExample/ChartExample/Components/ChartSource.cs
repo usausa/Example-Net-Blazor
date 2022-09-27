@@ -1,7 +1,5 @@
 namespace ChartExample.Components;
 
-using System.Runtime.CompilerServices;
-
 public class ChartSource<T> : IChartSource
 {
     private readonly IList<T> list;
@@ -24,10 +22,6 @@ public class ChartSource<T> : IChartSource
 
     public List<Func<T, double>> Threshold1Selectors { get; } = new();
 
-    public List<string> ValueLegends { get; } = new();
-
-    public List<string> ThresholdLegends { get; } = new();
-
     public int Value1Count => Value1Selectors.Count;
 
     public int Value2Count => Value2Selectors.Count;
@@ -42,10 +36,6 @@ public class ChartSource<T> : IChartSource
         MaxValue1 = maxValue1;
         MaxValue2 = maxValue2;
     }
-
-    public string GetValueLegend(int item) => ValueLegends[item];
-
-    public string GetThresholdLegend(int item) => ThresholdLegends[item];
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public DateTime GetTime(int index) => TimeSelector(list[index]);

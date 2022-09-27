@@ -32,7 +32,7 @@
     <g clip-path="url(#chart)">
         <ListItem Items="value1Axis">
             <ItemTemplate Context="entry">
-                <Condition Value="@entry.DrawLine">
+                <Condition Value="entry.DrawLine">
                     <line x1="@CanvasLeft" y1="@entry.Position" x2="@(CanvasLeft + CanvasWidth)" y2="@entry.Position" stroke-width="@AxisLineWidth" stroke="@entry.LineColor" stroke-dasharray="@AxisLineDashArray" />
                 </Condition>
             </ItemTemplate>
@@ -57,7 +57,7 @@
     <g clip-path="url(#chart)">
         <ListItem Items="timeAxis">
             <ItemTemplate Context="entry">
-                <Condition Value="@entry.DrawLine">
+                <Condition Value="entry.DrawLine">
                     <line x1="@entry.Position" y1="@CanvasTop" x2="@entry.Position" y2="@(CanvasTop + CanvasHeight)" stroke-width="@AxisLineWidth" stroke="@entry.LineColor" stroke-dasharray="@AxisLineDashArray" />
                 </Condition>
             </ItemTemplate>
@@ -81,9 +81,11 @@
     </g>
 
 </svg>
+
 @code {
-    private const int MarginX = 60;
-    private const int MarginY = 20;
+#pragma warning disable CA1823
+    private const int MarginX = 70;
+    private const int MarginY = 16;
 
     private const double CanvasLeft = MarginX;
     private const double CanvasTop = MarginY;
@@ -93,16 +95,15 @@
     private const double CanvasBorderWidth = 0.5;
     private const string CanvasBorderColor = "#424242";
 
-    private const double LegendWidth = 80;
-    private const double LegendMarkerRadius = 7;
-    private const double LegendMarkerOffset = 10;
-    private const double LegendTextOffset = 20;
+    private const double LegendWidth = 64;
+    private const double LegendMarkerRadius = 6;
+    private const double LegendTextOffset = 16;
 
     private const string LegendTextColor = "#212121";
-    private const string LegendFontSize = "10pt";
+    private const string LegendFontSize = "8pt";
 
     private const string LabelTextColor = "#212121";
-    private const string LabelFontSize = "9pt";
+    private const string LabelFontSize = "8pt";
 
     private const double AxisLineWidth = 0.5;
     private const string AxisLineColor = "#757575";
@@ -115,10 +116,11 @@
     private const string ValueAxisFontSize = "8pt";
 
     private const string TimeAxisTextColor = "#616161";
-    private const string TimeAxisFontSize = "9pt";
+    private const string TimeAxisFontSize = "8pt";
 
     private const double ValuePathWidth = 0.75;
     private const double ThresholdPathWidth = 1;
+#pragma warning restore CA1823
 
     private static readonly long TimeHour = TimeSpan.FromHours(1).Ticks;
 
@@ -193,38 +195,6 @@
             return;
         }
 
-        // Legend
-        var legendX = (Width - ((source.Value1Count + source.Value2Count + source.Threshold1Count) * LegendWidth)) / 2;
-        for (var item = 0; item < source.Value1Count + source.Value2Count; item++)
-        {
-            legends.Add(new LegendEntry
-            {
-                MarkerCenterX = legendX + LegendMarkerRadius,
-                MarkerCenterY = LegendMarkerRadius,
-                TextX = legendX + LegendTextOffset,
-                TextY = 0,
-                MarkerColor = BuildOption.ValuePalette[item % BuildOption.ValuePalette.Count],
-                Text = source.GetValueLegend(item)
-            });
-
-            legendX += LegendWidth;
-        }
-
-        for (var item = 0; item < source.Threshold1Count; item++)
-        {
-            legends.Add(new LegendEntry
-            {
-                MarkerCenterX = legendX + LegendMarkerOffset,
-                MarkerCenterY = LegendMarkerRadius,
-                TextX = legendX + LegendTextOffset,
-                TextY = 0,
-                MarkerColor = BuildOption.ThresholdPalette[item % BuildOption.ThresholdPalette.Count],
-                Text = source.GetThresholdLegend(item)
-            });
-
-            legendX += LegendWidth;
-        }
-
         // Label
         label1 = BuildOption.Label1;
         label2 = BuildOption.Label2;
@@ -241,19 +211,19 @@
         var maxValue1 = source.MaxValue1 ?? source.CalcMax1();
         var maxValue2 = source.MaxValue2 ?? source.CalcMax2();
         var context = new BuildContext
-        {
-            CanvasOffsetX = CanvasLeft,
-            CanvasOffsetY = CanvasTop,
-            CanvasWidth = CanvasWidth,
-            CanvasHeight = CanvasHeight,
-            MinTime = minDateTime.Ticks,
-            TimeRange = maxDateTime.Ticks - minDateTime.Ticks,
-            TimeAxis = BuildOption.TimeAxisCalculator(maxDateTime - minDateTime).Ticks,
-            MaxValue1 = maxValue1,
-            Value1Axis = BuildOption.Value1AxisCalculator(maxValue1),
-            MaxValue2 = maxValue2,
-            Value2Axis = BuildOption.Value1AxisCalculator(maxValue2)
-        };
+            {
+                CanvasOffsetX = CanvasLeft,
+                CanvasOffsetY = CanvasTop,
+                CanvasWidth = CanvasWidth,
+                CanvasHeight = CanvasHeight,
+                MinTime = minDateTime.Ticks,
+                TimeRange = maxDateTime.Ticks - minDateTime.Ticks,
+                TimeAxis = BuildOption.TimeAxisCalculator(maxDateTime - minDateTime).Ticks,
+                MaxValue1 = maxValue1,
+                Value1Axis = BuildOption.Value1AxisCalculator(maxValue1),
+                MaxValue2 = maxValue2,
+                Value2Axis = BuildOption.Value1AxisCalculator(maxValue2)
+            };
 
         // X Axis
         var x = context.TimeAxis < TimeHour ? new DateTime(minDateTime.Year, minDateTime.Month, minDateTime.Day, minDateTime.Hour, 0, 0).Ticks : minDateTime.Date.Ticks;
@@ -268,12 +238,12 @@
             var isMidnight = date.TimeOfDay.Ticks == 0;
             var axisX = CalcChartX(context, x);
             timeAxis.Add(new AxisEntry
-            {
-                DrawLine = x > context.MinTime && axisX <= context.CanvasOffsetX + context.CanvasWidth,
-                LineColor = isMidnight ? AxisLineColor2 : AxisLineColor,
-                Position = axisX,
-                Text = date.ToString(isMidnight ? BuildOption.DateFormat : BuildOption.TimeFormat)
-            });
+                {
+                    DrawLine = x > context.MinTime && axisX <= context.CanvasOffsetX + context.CanvasWidth,
+                    LineColor = isMidnight ? AxisLineColor2 : AxisLineColor,
+                    Position = axisX,
+                    Text = date.ToString(isMidnight ? BuildOption.DateFormat : BuildOption.TimeFormat, CultureInfo.InvariantCulture)
+                });
 
             x += context.TimeAxis;
         }
@@ -285,12 +255,12 @@
             y += context.Value1Axis;
 
             value1Axis.Add(new AxisEntry
-            {
-                DrawLine = y < context.MaxValue1,
-                LineColor = AxisLineColor,
-                Position = CalcChartY1(context, y),
-                Text = y.ToString(BuildOption.Value1Format)
-            });
+                {
+                    DrawLine = y < context.MaxValue1,
+                    LineColor = AxisLineColor,
+                    Position = CalcChartY1(context, y),
+                    Text = y.ToString(BuildOption.Value1Format, CultureInfo.InvariantCulture)
+                });
         }
 
         y = 0d;
@@ -299,12 +269,12 @@
             y += context.Value2Axis;
 
             value2Axis.Add(new AxisEntry
-            {
-                DrawLine = false,
-                LineColor = AxisLineColor,
-                Position = CalcChartY2(context, y),
-                Text = y.ToString(BuildOption.Value2Format)
-            });
+                {
+                    DrawLine = false,
+                    LineColor = AxisLineColor,
+                    Position = CalcChartY2(context, y),
+                    Text = y.ToString(BuildOption.Value2Format, CultureInfo.InvariantCulture)
+                });
         }
 
         // No path
@@ -330,11 +300,11 @@
             if (!builder.IsEmpty)
             {
                 lines.Add(new PathEntry
-                {
-                    Width = ValuePathWidth,
-                    Color = BuildOption.ValuePalette[item % BuildOption.ValuePalette.Count],
-                    Data = builder.ToString()
-                });
+                    {
+                        Width = ValuePathWidth,
+                        Color = BuildOption.ValuePalette[item % BuildOption.ValuePalette.Length],
+                        Data = builder.ToString()
+                    });
             }
         }
 
@@ -355,11 +325,11 @@
             if (!builder.IsEmpty)
             {
                 lines.Add(new PathEntry
-                {
-                    Width = ValuePathWidth,
-                    Color = BuildOption.ValuePalette[(item + source.Value1Count) % BuildOption.ValuePalette.Count],
-                    Data = builder.ToString()
-                });
+                    {
+                        Width = ValuePathWidth,
+                        Color = BuildOption.ValuePalette[(item + source.Value1Count) % BuildOption.ValuePalette.Length],
+                        Data = builder.ToString()
+                    });
             }
         }
 
@@ -377,11 +347,11 @@
             builder.Flush();
 
             lines.Add(new PathEntry
-            {
-                Width = ThresholdPathWidth,
-                Color = BuildOption.ThresholdPalette[item % BuildOption.ThresholdPalette.Count],
-                Data = builder.ToString()
-            });
+                {
+                    Width = ThresholdPathWidth,
+                    Color = BuildOption.ThresholdPalette[item % BuildOption.ThresholdPalette.Length],
+                    Data = builder.ToString()
+                });
         }
     }
 
@@ -396,7 +366,6 @@
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static double CalcChartY2(BuildContext context, double value) =>
         context.CanvasOffsetY + context.CanvasHeight - (value / context.MaxValue2 * context.CanvasHeight);
-
 
     // BuildContext
     private class BuildContext
@@ -502,7 +471,7 @@
         {
             if (builder.Length == 0)
             {
-                builder.Append($"M{x:0.##},{y:0.##}");
+                builder.Append(CultureInfo.InvariantCulture, $"M{x:0.##},{y:0.##}");
             }
             else
             {
@@ -515,13 +484,12 @@
                 {
                     if (skip)
                     {
-                        builder.Append($" L{x:0.##},{lastY:0.##}");
+                        builder.Append(CultureInfo.InvariantCulture, $" L{x:0.##},{lastY:0.##}");
                         skip = false;
                     }
 
-                    builder.Append($" L{x:0.##},{y:0.##}");
+                    builder.Append(CultureInfo.InvariantCulture, $" L{x:0.##},{y:0.##}");
                 }
-
             }
 
             lastY = y;
@@ -532,7 +500,7 @@
         {
             if (skip)
             {
-                builder.Append($" L{lastX:0.##},{lastY:0.##}");
+                builder.Append(CultureInfo.InvariantCulture, $" L{lastX:0.##},{lastY:0.##}");
                 skip = false;
             }
         }

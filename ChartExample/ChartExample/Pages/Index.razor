@@ -2,7 +2,7 @@
 
 <PageTitle>Index</PageTitle>
 
-<LineChart Width="840" Height="340" Source="source" BuildOption="BuildOption" />
+<LineChart Width="860" Height="332" Source="source" BuildOption="BuildOption" />
 
 <h6>Start</h6>
 <div>
@@ -86,11 +86,12 @@
             minDateTime: isDayData ? list[0].Timestamp.TruncateSecond() : null,
             maxDateTime: isDayData ? list[^1].Timestamp.TruncateSecond().AddMinutes(1) : null,
             maxValue2: 100);
-        source.ValueLegends.Add("Value1");
-        source.ValueLegends.Add("Value2");
-        source.ValueLegends.Add("Value3");
-        source.ThresholdLegends.Add("Warning1");
-        source.ThresholdLegends.Add("Warning2");
+        // TODO
+        //source.ValueLegends.Add("Value1");
+        //source.ValueLegends.Add("Value2");
+        //source.ValueLegends.Add("Value3");
+        //source.ThresholdLegends.Add("Warning1");
+        //source.ThresholdLegends.Add("Warning2");
         source.TimeSelector = x => x.Timestamp;
         source.Value1Selectors.Add(x => x.Value1);
         source.Value1Selectors.Add(x => x.Value2);
