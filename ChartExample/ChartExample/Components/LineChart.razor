@@ -1,5 +1,6 @@
 @using Microsoft.IdentityModel.Tokens
-<svg xmlns="http://www.w3.org/2000/svg" width="@ChartWidth" height="@ChartHeight">
+@using System.Diagnostics
+<svg xmlns="http://www.w3.org/2000/svg" width="@ChartWidth" height="@ChartHeight" @onclick="x => Callback(x)">
 
     <defs>
         <clipPath id="chart">
@@ -110,7 +111,7 @@
 </svg>
 
 @code {
-#pragma warning disable CA1823
+    #pragma warning disable CA1823
     private const double MarginLeft = 70;
     private const double MarginRight = 70;
     private const double MarginTop = 20;
@@ -618,4 +619,14 @@
 
         public override string ToString() => builder.ToString();
     }
+
+    private void Callback()
+    {
+    }
+
+    private void Callback(MouseEventArgs obj)
+    {
+        Debug.WriteLine($"{obj.ClientX} {obj.ClientY} {obj.OffsetX} {obj.OffsetY} {obj.PageX} {obj.PageY} {obj.ScreenX} {obj.ScreenY}");
+    }
+
 }
